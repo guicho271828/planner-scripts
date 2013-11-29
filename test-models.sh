@@ -41,7 +41,7 @@ EOF
 fi
 
 
-SDIR=$(readlink -e ${0%%/*})
+SDIR=$(readlink -e ${0%/*})
 RAND_SRC=$SDIR/random
 SCRIPT=$(readlink -e $SDIR/$SCRIPT_NAME)
 DIR=$(readlink -e $1)
