@@ -63,9 +63,9 @@ allfiles=$(find $DIR -iwholename "*$PATTERN")
 
 if $ALLOW_RANDOM
 then
-    files=$(ls -1rS $allfiles | shuf --random-source=random | tail -n +$(expr $FROM + 1) - | head -n $LIMIT -)
-else
     files=$(ls -1rS $allfiles | tail -n +$(expr $FROM + 1) - | head -n $LIMIT -)
+else
+    files=$(ls -1rS $allfiles | shuf --random-source=random | tail -n +$(expr $FROM + 1) - | head -n $LIMIT -)
 fi
 cat <<EOF
 Files to search:
