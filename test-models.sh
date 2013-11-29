@@ -2,16 +2,18 @@
 
 PARALLEL=1
 
+sort=
 SCRIPT_NAME=test-problem.sh
 RUN=true
 ALLOW_RANDOM=false
 FROM=0
 LIMIT=1024
-while getopts ":p:s:f:drl:" opt
+while getopts ":S:p:s:f:drl:" opt
 do
     case ${opt} in
         p) PARALLEL=${OPTARG} ;;
         s) SCRIPT_NAME=${OPTARG} ;;
+        S) sort=${OPTARG} ;;
         d) RUN=false;;
         r) ALLOW_RANDOM=true;;
         l) LIMIT=${OPTARG} ;;
@@ -64,9 +66,9 @@ allfiles=$(find $DIR -iwholename "*$PATTERN")
 
 if $ALLOW_RANDOM
 then
-    files=$(ls -1 $allfiles | shuf --random-source=$RAND_SRC | tail -n +$(expr $FROM + 1) - | head -n $LIMIT -)
+    files=$(ls -1 $sort $allfiles | shuf --random-source=$RAND_SRC | tail -n +$(expr $FROM + 1) - | head -n $LIMIT -)
 else
-    files=$(ls -1 $allfiles | tail -n +$(expr $FROM + 1) - | head -n $LIMIT -)
+    files=$(ls -1 $sort $allfiles | tail -n +$(expr $FROM + 1) - | head -n $LIMIT -)
 fi
 cat <<EOF
 Files to search:
