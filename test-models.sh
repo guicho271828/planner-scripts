@@ -42,6 +42,7 @@ fi
 
 
 SDIR=$(readlink -e ${0%%/*})
+RAND_SRC=$SDIR/random
 SCRIPT=$(readlink -e $SDIR/$SCRIPT_NAME)
 DIR=$(readlink -e $1)
 
@@ -65,7 +66,7 @@ if $ALLOW_RANDOM
 then
     files=$(ls -1rS $allfiles | tail -n +$(expr $FROM + 1) - | head -n $LIMIT -)
 else
-    files=$(ls -1rS $allfiles | shuf --random-source=random | tail -n +$(expr $FROM + 1) - | head -n $LIMIT -)
+    files=$(ls -1rS $allfiles | shuf --random-source=$RAND_SRC | tail -n +$(expr $FROM + 1) - | head -n $LIMIT -)
 fi
 cat <<EOF
 Files to search:
