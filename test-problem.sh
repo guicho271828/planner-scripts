@@ -2,7 +2,6 @@
 
 # @(#) usage: [-v] [-t SOFT_TIME_LIMIT] [-T HARD_TIME_LIMIT] [-m MEMORY_LIMIT] [-o FD_OPTIONS] problemfile [domainfile]
 
-
 REALPATH=$(which realpath)
 if [[ $REALPATH == "" ]]
 then
@@ -40,15 +39,17 @@ done
 
 shift $(($OPTIND - 1))
 
-if [[ $1 == "" ]]
+if [[ ( $1 == "" ) || $OPT_ERROR ]]
 then
-    echo "usage: [-v] [-t SOFT_TIME_LIMIT] [-T HARD_TIME_LIMIT] [-m MEMORY_LIMIT] [-o FD_OPTIONS] problemfile [domainfile]" >&2
+    cat >&2 <<EOF
+usage: ./test-problem
+       [-v]
+       [-t SOFT_TIME_LIMIT]
+       [-T HARD_TIME_LIMIT]
+       [-m MEMORY_LIMIT]
+       [-o FD_OPTIONS] problemfile [domainfile]
+EOF
     exit 2
-fi
-
-if [ $OPT_ERROR ]; then      # option error
-    echo "usage: [-v] [-t SOFT_TIME_LIMIT] [-T HARD_TIME_LIMIT] [-m MEMORY_LIMIT] [-o FD_OPTIONS] problemfile [domainfile]" >&2
-    exit 1
 fi
 
 if [ $SOFT_TIME_LIMIT -gt $HARD_TIME_LIMIT ]
@@ -57,6 +58,10 @@ then
     exit 1
 fi
 
+################################################################
+# main code
+
+export SCR_DIR=$(dirname $($REALPATH $0))
 export PDDL=$($REALPATH $1)
 
 if [[ $2 != "" ]]
@@ -100,9 +105,10 @@ echo "DOMAIN:               $DOMAIN"
 echo "SEARCH COMMAND:       $SEARCH"
 echo --------------------------------------------------------$'\x1b[0m'
 
-TMPDIR=`mktemp -d`
-trap "rm -rfv $TMPDIR" SIGINT
-trap "rm -rfv $TMPDIR" EXIT
+export TMPDIR=`mktemp -d`
+trap "$SCR_DIR/post.sh" SIGINT
+trap "$SCR_DIR/post.sh" SIGTERM
+# trap "$SCR_DIR/post.sh" EXIT
 pushd $TMPDIR
 
 touch $PROBLEM_NAME.translate.log
@@ -138,7 +144,6 @@ killDescendants (){
     done
 }
 
-
 coproc FD {
     ulimit -v $MEMORY_USAGE -t $HARD_TIME_LIMIT
     
@@ -168,14 +173,20 @@ then
     CHECK_INTERVAL=$SOFT_TIME_LIMIT
 fi
 
-FD_DESCENDANTS=$(descendants $FD_PID)
-TIMEOUT_DESCENDANTS=$(descendants $TIMEOUT_PID)
+export FD_DESCENDANTS=$(descendants $FD_PID)
+export TIMEOUT_DESCENDANTS=$(descendants $TIMEOUT_PID)
 echo $FD_DESCENDANTS
 echo $TIMEOUT_DESCENDANTS
 while true
 do
     sleep $CHECK_INTERVAL
-    if [[ $(cat $FD_STATUS) != "" ]] # 何か書き込まれている = FDが終了
+    if [[ ! ( -e $FD_STATUS && -e $TIMEOUT_STATUS ) ]]
+    then
+        echo "Terminated Unexpectedly." >&2
+        killDescendants $FD_DESCENDANTS
+        killDescendants $TIMEOUT_DESCENDANTS
+        exit 2
+    elif [[ $(cat $FD_STATUS) != "" ]] # 何か書き込まれている = FDが終了
     then
         if [[ $(cat $FD_STATUS) == 0 ]] # 正常終了
         then
@@ -198,41 +209,7 @@ done
 
 killDescendants $FD_DESCENDANTS
 killDescendants $TIMEOUT_DESCENDANTS
-pkill -9 -P 1 downward
-pkill -9 -P 1 downward
-
-rm -f $FD_STATUS $TIMEOUT_STATUS
-
-mv output.sas $SAS
-for groups in $(ls *.groups 2> /dev/null)
-do
-    mv $groups $PROBLEM_NAME.$groups
-done
-mv output $SAS_PLUS
-mv elapsed.time $PROBLEM_NAME.time
-mv plan_numbers_and_cost $PROBLEM_NAME.cost
-
-echo $'\x1b[34;1m'---- process $PPID finished ----------------------------
-if [[ -e sas_plan.1 ]]
-then
-    echo Result:
-    for plan in $(ls sas_plan.*)
-    do
-        mv $plan $PROBLEM_NAME.plan.${plan##*.}
-        echo $PROBLEM_NAME.plan.${plan##*.}
-    done
-    cat $PROBLEM_NAME.cost
-elif [[ -e sas_plan ]]
-then
-    echo Result:
-    mv sas_plan $PROBLEM_NAME.plan.1
-    echo $PROBLEM_NAME.plan.1
-    cat $PROBLEM_NAME.cost
-else
-    echo "Search Failed: No path could be found in the current configuration."
-fi
-echo --------------------------------------------------------$'\x1b[0m'
-
+$SCR_DIR/post.sh
 popd
 
 exit
