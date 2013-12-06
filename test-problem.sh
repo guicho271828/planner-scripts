@@ -40,6 +40,12 @@ done
 
 shift $(($OPTIND - 1))
 
+if [[ $1 == "" ]]
+then
+    echo "usage: [-v] [-t SOFT_TIME_LIMIT] [-T HARD_TIME_LIMIT] [-m MEMORY_LIMIT] [-o FD_OPTIONS] problemfile [domainfile]" >&2
+    exit 2
+fi
+
 if [ $OPT_ERROR ]; then      # option error
     echo "usage: [-v] [-t SOFT_TIME_LIMIT] [-T HARD_TIME_LIMIT] [-m MEMORY_LIMIT] [-o FD_OPTIONS] problemfile [domainfile]" >&2
     exit 1
