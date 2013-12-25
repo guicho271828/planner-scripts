@@ -167,7 +167,7 @@ echo "Script  Process $$"
 echo "FD      Process $FD_PID"
 echo "TIMEOUT Process $TIMEOUT_PID"
 
-CHECK_INTERVAL=5
+CHECK_INTERVAL=1
 if [ $SOFT_TIME_LIMIT -lt $CHECK_INTERVAL ]
 then
     CHECK_INTERVAL=$SOFT_TIME_LIMIT
@@ -202,7 +202,7 @@ do
             echo "PID ($$): Reached the SOFT limit. Path found, $FD_PID terminated" >&2
             break
         else # なければ hard limit に至るまで続行
-            echo "PID ($$): Reached the SOFT limit. Continue searching..." >&2
+            # echo "PID ($$): Reached the SOFT limit. Continue searching..." >&2
         fi
     fi
 done
