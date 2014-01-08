@@ -136,15 +136,18 @@ killDescendants (){
     echo $*
     for PID in $*
     do
-        echo killing : $(ps -e | grep $PID)
-        kill $PID
+        if ps -p $PID &> /dev/null
+        then
+            echo killing : $(ps -p $PID)
+            kill $PID
+        fi
     done
     sleep 0.5
     for PID in $*
     do
-        if ps -p $PID
+        if ps -p $PID &> /dev/null
         then
-            echo force killing : $(ps -e | grep $PID)
+            echo force killing : $(ps -p $PID)
             kill -9 $PID
         fi
     done
@@ -173,11 +176,13 @@ echo "Script  Process $$"
 echo "FD      Process $FD_PID"
 echo "TIMEOUT Process $TIMEOUT_PID"
 
-export $FD_PID
-export $TIMEOUT_PID
+handler (){
+    killDescendants $FD_DESCENDANTS
+    killDescendants $TIMEOUT_DESCENDANTS
+    $SCR_DIR/post.sh
+}
 
-trap "killDescendants $FD_DESCENDANTS; killDescendants $TIMEOUT_DESCENDANTS; $SCR_DIR/post.sh" SIGINT
-trap "killDescendants $FD_DESCENDANTS; killDescendants $TIMEOUT_DESCENDANTS; $SCR_DIR/post.sh" SIGTERM
+trap "handler" EXIT
 
 CHECK_INTERVAL=1
 if [ $SOFT_TIME_LIMIT -lt $CHECK_INTERVAL ]
@@ -195,8 +200,6 @@ do
     if [[ ! ( -e $FD_STATUS && -e $TIMEOUT_STATUS ) ]]
     then
         echo "Terminated Unexpectedly." >&2
-        killDescendants $FD_DESCENDANTS
-        killDescendants $TIMEOUT_DESCENDANTS
         exit 2
     elif [[ $(cat $FD_STATUS) != "" ]] # 何か書き込まれている = FDが終了
     then
@@ -219,9 +222,6 @@ do
     fi
 done
 
-killDescendants $FD_DESCENDANTS
-killDescendants $TIMEOUT_DESCENDANTS
-$SCR_DIR/post.sh
 popd
 
 exit
