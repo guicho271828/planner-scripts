@@ -125,7 +125,7 @@ descendants () {
     parents[0]=$1
     while [ ${#parents[@]} -gt 0 ]
     do
-        echo ${parents[0]}
+        # echo ${parents[0]}
         children=($(pgrep -P ${parents[0]}))
         unset parents[0]
         parents=("${parents[@]}" "${children[@]}")
@@ -177,13 +177,14 @@ echo "FD      Process $FD_PID"
 echo "TIMEOUT Process $TIMEOUT_PID"
 
 handler (){
+    echo "Finalization Procedure: killing all subprocess"
     killDescendants $FD_DESCENDANTS
     killDescendants $TIMEOUT_DESCENDANTS
     $SCR_DIR/post.sh
     popd
 }
 
-trap "handler" EXIT
+trap "handler" EXIT SIGINT SIGTERM
 
 CHECK_INTERVAL=1
 if [ $SOFT_TIME_LIMIT -lt $CHECK_INTERVAL ]
@@ -200,26 +201,29 @@ do
     sleep $CHECK_INTERVAL
     if [[ ! ( -e $FD_STATUS && -e $TIMEOUT_STATUS ) ]]
     then
-        echo "Terminated Unexpectedly." >&2
+        echo "Terminated Unexpectedly."
         exit 2
     elif [[ $(cat $FD_STATUS) != "" ]] # 何か書き込まれている = FDが終了
     then
         if [[ $(cat $FD_STATUS) == 0 ]] # 正常終了
         then
-            echo "PID ($$): Search finished normally." >&2
+            echo "PID ($$): Search finished normally."
+            exit 0
         else # ulimit による強制終了
-            echo "PID ($$): Reached the HARD limit, $FD_PID terminated" >&2 
+            echo "PID ($$): Reached the HARD limit, $FD_PID terminated"
+            exit 1
         fi
-        break
     elif [[ $(cat $TIMEOUT_STATUS) == t ]] # soft timeout
     then
         if ls sas_plan* &> /dev/null
         then # パスが一つでもあれば終了
-            echo "PID ($$): Reached the SOFT limit. Path found, $FD_PID terminated" >&2
-            break
+            echo "PID ($$): Reached the SOFT limit. Path found, $FD_PID terminated"
+            exit 0
         # else # なければ hard limit に至るまで続行
         #     # echo "PID ($$): Reached the SOFT limit. Continue searching..." >&2
         fi
     fi
 done
+
+
 exit
