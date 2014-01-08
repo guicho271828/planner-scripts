@@ -180,6 +180,7 @@ handler (){
     killDescendants $FD_DESCENDANTS
     killDescendants $TIMEOUT_DESCENDANTS
     $SCR_DIR/post.sh
+    popd
 }
 
 trap "handler" EXIT
@@ -221,7 +222,4 @@ do
         fi
     fi
 done
-
-popd
-
 exit
