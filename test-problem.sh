@@ -106,9 +106,6 @@ echo "SEARCH COMMAND:       $SEARCH"
 echo --------------------------------------------------------$'\x1b[0m'
 
 export TMPDIR=`mktemp -d`
-trap "$SCR_DIR/post.sh" SIGINT
-trap "$SCR_DIR/post.sh" SIGTERM
-# trap "$SCR_DIR/post.sh" EXIT
 pushd $TMPDIR
 
 touch $PROBLEM_NAME.translate.log
@@ -140,7 +137,16 @@ killDescendants (){
     for PID in $*
     do
         echo killing : $(ps -e | grep $PID)
-        kill $PID 
+        kill $PID
+    done
+    sleep 0.5
+    for PID in $*
+    do
+        if ps -p $PID
+        then
+            echo force killing : $(ps -e | grep $PID)
+            kill -9 $PID
+        fi
     done
 }
 
@@ -166,6 +172,12 @@ coproc TIMEOUT {
 echo "Script  Process $$"
 echo "FD      Process $FD_PID"
 echo "TIMEOUT Process $TIMEOUT_PID"
+
+export $FD_PID
+export $TIMEOUT_PID
+
+trap "killDescendants $FD_DESCENDANTS; killDescendants $TIMEOUT_DESCENDANTS; $SCR_DIR/post.sh" SIGINT
+trap "killDescendants $FD_DESCENDANTS; killDescendants $TIMEOUT_DESCENDANTS; $SCR_DIR/post.sh" SIGTERM
 
 CHECK_INTERVAL=1
 if [ $SOFT_TIME_LIMIT -lt $CHECK_INTERVAL ]
