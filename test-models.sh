@@ -62,7 +62,7 @@ PATTERN=$2
 shift 2
 
 echo Search options : $*
-allfiles=$(find $DIR -iwholename "*$PATTERN")
+allfiles=$(find $DIR -regex "$PATTERN")
 
 if $ALLOW_RANDOM
 then
