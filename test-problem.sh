@@ -156,13 +156,13 @@ killDescendants (){
 coproc FD {
     ulimit -v $MEMORY_USAGE -t $HARD_TIME_LIMIT
     
-    time $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log
+    /usr/bin/time -p $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log
     echo Translation Finished
 
-    time $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log
+    /usr/bin/time -p $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log
     echo Preprocessing Finished
 
-    time $SEARCH < output &> $PROBLEM_NAME.search.log
+    /usr/bin/time -p $SEARCH < output &> $PROBLEM_NAME.search.log
 
     echo $? > $FD_STATUS
 }
