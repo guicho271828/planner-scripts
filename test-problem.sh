@@ -8,6 +8,8 @@ then
     REALPATH="readlink -e "
 fi
 
+TIMER=/usr/bin/time -f "real %e\nuser %U\nsys %S\nmaxmem %M"
+
 export SOFT_TIME_LIMIT=1795
 export HARD_TIME_LIMIT=1800
 export MEMORY_USAGE=2000000
@@ -156,13 +158,13 @@ killDescendants (){
 coproc FD {
     ulimit -v $MEMORY_USAGE -t $HARD_TIME_LIMIT
     
-    /usr/bin/time -p $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log
+    $TIMER $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log
     echo Translation Finished
 
-    /usr/bin/time -p $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log
+    $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log
     echo Preprocessing Finished
 
-    /usr/bin/time -p $SEARCH < output &> $PROBLEM_NAME.search.log
+    $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log
 
     echo $? > $FD_STATUS
 }
