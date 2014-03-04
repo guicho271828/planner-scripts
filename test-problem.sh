@@ -8,7 +8,7 @@ then
     REALPATH="readlink -e "
 fi
 
-TIMER=/usr/bin/time -f "real %e\nuser %U\nsys %S\nmaxmem %M"
+export TIMER='eval /usr/bin/time -f "real %e\nuser %U\nsys %S\nmaxmem %M"'
 
 export SOFT_TIME_LIMIT=1795
 export HARD_TIME_LIMIT=1800
