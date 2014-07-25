@@ -125,11 +125,11 @@ fd (){
     echo 0 > $finished
 }
 
-export -f hard_limit
 hard_limit (){
     echo "Reached the Hard limit, terminating"
     echo 1 > $finished
 }
+export -f hard_limit
 
 soft_limit (){
     if [[ $SOFT_TIME_LIMIT =~ ^[0-9]+$ ]]
