@@ -97,17 +97,38 @@ export PREPROCESS=$FD_DIR/src/preprocess/preprocess # < OUTPUT.SAS
 export SEARCH_DIR=$FD_DIR/src/search
 export SEARCH="$SEARCH_DIR/downward $OPTIONS"
 
+export FD_PID
+export TIMEOUT_PID
+export finished
+
 ################################################################
 #### functions
 
+finalize (){
+    echo "Killing FD_PID=$FD_PID subprocess..."
+    $SCR_DIR/killall.sh $FD_PID -9
+    echo "Killing TIMEOUT_PID=$TIMEOUT_PID subprocess..."
+    $SCR_DIR/killall.sh $TIMEOUT_PID -9
+    echo "Killing TAIL_PID=$TAIL_PID subprocess..."
+    $SCR_DIR/killall.sh $TAIL_PID -9
+    $SCR_DIR/post.sh
+}
+
 fd (){
     ulimit -v $MEMORY_USAGE -t $HARD_TIME_LIMIT
-    $TIMER $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log
+    $TIMER $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log || hard_limit
     echo Translation Finished
-    $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log
+    $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log  || hard_limit
     echo Preprocessing Finished
-    $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log
-    exit 0
+    $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log || hard_limit
+    echo Search Finished
+    echo 0 > $finished
+}
+
+export -f hard_limit
+hard_limit (){
+    echo "Reached the Hard limit, terminating"
+    echo 1 > $finished
 }
 
 soft_limit (){
@@ -119,14 +140,20 @@ soft_limit (){
             echo "PID ($$): Reached the SOFT limit. Path found, $FD_PID terminated"
         else # なければ hard limit に至るまで続行
             echo "PID ($$): Reached the SOFT limit. Continue searching..." >&2
-            touch sas_plan sas_plan.1 # for optimising / satisficing track
-            inotifywait sas_plan sas_plan.1
+            # touch sas_plan sas_plan.1 # for optimising / satisficing track
+            inotifywait \
+                --exclude ".*\.sas" \
+                --exclude ".*\.groups" \
+                --exclude ".*\.time" \
+                --exclude "output" \
+                --exclude "plan_numbers_and_cost" \
+                -e create ./
             echo "PID ($$): Path found, $FD_PID terminated"
         fi
-        exit 0
+        echo 0 > $finished
     else
-        echo "ERROR: the soft time limit is malformed -- $SOFT_TIME_LIMIT"
-        exit 1
+        echo "ERROR: the soft time limit is malformed -- $SOFT_TIME_LIMIT" >&2
+        echo 1 > $finished
     fi
 }
 
@@ -137,14 +164,6 @@ timeout (){
         hard) ;;
         *) soft_limit ;;
     esac
-}
-
-finalize (){
-    echo "Killing FD_PID=$FD_PID subprocess..."
-    $SCR_DIR/killall.sh $FD_PID -TERM
-    echo "Killing TIMEOUT_PID=$TIMEOUT_PID subprocess..."
-    $SCR_DIR/killall.sh $TIMEOUT_PID -TERM
-    $SCR_DIR/post.sh
 }
 
 ################################################################
@@ -168,18 +187,21 @@ echo --------------------------------------------------------$'\x1b[0m'
 
 export TMPDIR=$(mktemp -d)
 pushd $TMPDIR
+export finished=$(mktemp)
 if $VERBOSE
 then
     touch $PROBLEM_NAME.search.log
     tail -f $PROBLEM_NAME.search.log &
+    TAIL_PID=$!
 fi
 
 fd &
-FD_PID=$!
+export FD_PID=$!
 timeout &
-TIMEOUT_PID=$!
+export TIMEOUT_PID=$!
 echo "FD      Process $FD_PID"
 echo "TIMEOUT Process $TIMEOUT_PID"
 trap "finalize" EXIT
-wait $FD_PID
 
+inotifywait $finished
+exit $(cat $finished)

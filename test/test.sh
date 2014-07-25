@@ -14,4 +14,8 @@
 ../clean.sh
 ../test-problem.sh -t 1 -T 30 p0002.pddl domain.pddl
 
+# force hard limit
+../clean.sh
+../test-problem.sh -t 3 -T 5 p0004.pddl domain.pddl
+
 
