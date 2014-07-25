@@ -1,9 +1,17 @@
 #! /bin/bash
 
+
+# this should finish normally (because it is easy)
 ../clean.sh
-../test-problem.sh model2a1.pddl domain.pddl &
-SCR_PID=$!
-sleep 0.5
-echo "test.sh: !!!! killing $SCR_PID !!!!"
-kill $SCR_PID
+../test-problem.sh p0001.pddl domain.pddl
+
 ../clean.sh
+../test-problem.sh -t 1 p0001.pddl domain.pddl
+
+../clean.sh
+../test-problem.sh -T 1 p0001.pddl domain.pddl
+
+../clean.sh
+../test-problem.sh -t 1 -T 30 p0002.pddl domain.pddl
+
+

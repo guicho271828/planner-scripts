@@ -1,11 +1,7 @@
 #! /bin/bash
 
-pkill -9 -P 1 downward
-pkill -9 -P 1 downward
-pkill -9 -P 1 downward-1
-pkill -9 -P 1 downward-1
+# moves the output files
 
-rm -f $FD_STATUS $TIMEOUT_STATUS
 mv output.sas $SAS
 for groups in $(ls *.groups 2> /dev/null)
 do
@@ -27,13 +23,13 @@ then
     cat $PROBLEM_NAME.cost
 elif [[ -e sas_plan ]]
 then
-    echo Result:
     mv sas_plan $PROBLEM_NAME.plan.1
-    echo $PROBLEM_NAME.plan.1
+    echo "Result: $PROBLEM_NAME.plan.1"
     cat $PROBLEM_NAME.cost
 else
-    echo "Search Failed: No path could be found in the current configuration."
+    echo "Search Failed: No path was found in the current configuration."
 fi
 echo --------------------------------------------------------$'\x1b[0m'
 
-rm -rfv $TMPDIR
+# cleanup
+rm -rfv $TMPDIR $FD_STATUS $TIMEOUT_STATUS

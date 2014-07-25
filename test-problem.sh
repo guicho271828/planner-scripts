@@ -1,20 +1,24 @@
 #! /bin/bash
 
-# @(#) usage: [-v] [-t SOFT_TIME_LIMIT] [-T HARD_TIME_LIMIT] [-m MEMORY_LIMIT] [-o FD_OPTIONS] problemfile [domainfile]
-
+FD_DIR=~/repos/downward
 REALPATH=$(which realpath)
 if [[ $REALPATH == "" ]]
 then
     REALPATH="readlink -e "
 fi
 
-export TIMER='eval /usr/bin/time -f "real %e\nuser %U\nsys %S\nmaxmem %M"'
+################################################################
+#### default options
 
+export TIMER='eval /usr/bin/time -f "real %e\nuser %U\nsys %S\nmaxmem %M"'
 export SOFT_TIME_LIMIT=1795
 export HARD_TIME_LIMIT=1800
 export MEMORY_USAGE=2000000
 export OPTIONS="ipc seq-sat-lama-2011"
-VERBOSE=false
+export VERBOSE=false
+
+################################################################
+#### option processing
 
 while getopts ":vst:T:m:o:" opt
 do
@@ -56,12 +60,12 @@ fi
 
 if [ $SOFT_TIME_LIMIT -gt $HARD_TIME_LIMIT ]
 then
-    echo "the soft time limit should be less than equal to the hard limit" >&2
+    echo "ERROR: the soft time limit should be less than equal to the hard limit" >&2
     exit 1
 fi
 
 ################################################################
-# main code
+# more setup codes
 
 export SCR_DIR=$(dirname $($REALPATH $0))
 export PDDL=$($REALPATH $1)
@@ -84,19 +88,20 @@ fi
 
 export SAS=$PROBLEM_NAME.sas
 export SAS_PLUS=$PROBLEM_NAME.sasp
-FD_DIR=~/repos/downward
+export TRANSLATE=$FD_DIR/src/translate/translate.py
+export PREPROCESS=$FD_DIR/src/preprocess/preprocess # < OUTPUT.SAS
+export SEARCH_DIR=$FD_DIR/src/search
+export SEARCH="$SEARCH_DIR/downward $OPTIONS"
 
+################################################################
+#### main code
+
+# cleanup
 rm -f $PROBLEM_NAME.time
 rm -f $PROBLEM_NAME.cost
 rm -f $PROBLEM_NAME.*.log
 rm -f $PROBLEM_NAME.plan*
-rm -f $SAS
-rm -f $SAS_PLUS
-
-export TRANSLATE=$FD_DIR/src/translate/translate.py
-export PREPROCESS=$FD_DIR/src/preprocess/preprocess # < OUTPUT.SAS
-SEARCH_DIR=$FD_DIR/src/search
-export SEARCH="$SEARCH_DIR/downward $OPTIONS"
+rm -f $SAS $SAS_PLUS
 
 echo $'\x1b[34;1m'---- process $PPID started -----------------------------
 echo "MAX MEM(kB):          $MEMORY_USAGE"
@@ -107,83 +112,38 @@ echo "DOMAIN:               $DOMAIN"
 echo "SEARCH COMMAND:       $SEARCH"
 echo --------------------------------------------------------$'\x1b[0m'
 
-export TMPDIR=`mktemp -d`
+export TMPDIR=$(mktemp -d)
 pushd $TMPDIR
-
-touch $PROBLEM_NAME.translate.log
-touch $PROBLEM_NAME.preprocess.log
-touch $PROBLEM_NAME.search.log
 if $VERBOSE
 then
-    # tail -f $PROBLEM_NAME.translate.log &
-    # tail -f $PROBLEM_NAME.preprocess.log &
+    touch $PROBLEM_NAME.search.log
     tail -f $PROBLEM_NAME.search.log &
 fi
 
 export FD_STATUS=$(mktemp)
 export TIMEOUT_STATUS=$(mktemp)
-
-descendants () {
-    parents[0]=$1
-    while [ ${#parents[@]} -gt 0 ]
-    do
-        # echo ${parents[0]}
-        children=($(pgrep -P ${parents[0]}))
-        unset parents[0]
-        parents=("${parents[@]}" "${children[@]}")
-    done
-}
-
-killDescendants (){
-    echo $*
-    for PID in $*
-    do
-        if ps -p $PID &> /dev/null
-        then
-            echo killing : $(ps -p $PID)
-            kill $PID
-        fi
-    done
-    sleep 0.5
-    for PID in $*
-    do
-        if ps -p $PID &> /dev/null
-        then
-            echo force killing : $(ps -p $PID)
-            kill -9 $PID
-        fi
-    done
-}
-
 coproc FD {
     ulimit -v $MEMORY_USAGE -t $HARD_TIME_LIMIT
-    
     $TIMER $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log
     echo Translation Finished
-
     $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log
     echo Preprocessing Finished
-
     $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log
-
     echo $? > $FD_STATUS
 }
-
 coproc TIMEOUT {
     sleep $SOFT_TIME_LIMIT
     echo t > $TIMEOUT_STATUS
 }
 
-echo "Script  Process $$"
 echo "FD      Process $FD_PID"
 echo "TIMEOUT Process $TIMEOUT_PID"
-
 handler (){
-    echo "Finalization Procedure: killing all subprocess"
-    killDescendants $FD_DESCENDANTS
-    killDescendants $TIMEOUT_DESCENDANTS
+    echo "Killing FD_PID=$FD_PID subprocess..."
+    $SCR_DIR/killall.sh $FD_PID -TERM
+    echo "Killing TIMEOUT_PID=$TIMEOUT_PID subprocess..."
+    $SCR_DIR/killall.sh $TIMEOUT_PID -TERM
     $SCR_DIR/post.sh
-    popd
 }
 
 trap "handler" EXIT SIGINT SIGTERM
@@ -194,10 +154,6 @@ then
     CHECK_INTERVAL=$SOFT_TIME_LIMIT
 fi
 
-export FD_DESCENDANTS=$(descendants $FD_PID)
-export TIMEOUT_DESCENDANTS=$(descendants $TIMEOUT_PID)
-echo $FD_DESCENDANTS
-echo $TIMEOUT_DESCENDANTS
 while true
 do
     sleep $CHECK_INTERVAL
@@ -227,5 +183,5 @@ do
     fi
 done
 
-
 exit
+
