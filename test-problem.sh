@@ -58,10 +58,14 @@ EOF
     exit 2
 fi
 
-if [ $SOFT_TIME_LIMIT -gt $HARD_TIME_LIMIT ]
+re='^[0-9]+$'
+if [[ ( $SOFT_TIME_LIMIT =~ $re ) && ( $HARD_TIME_LIMIT =~ $re ) ]]
 then
-    echo "ERROR: the soft time limit should be less than equal to the hard limit" >&2
-    exit 1
+    if [ $SOFT_TIME_LIMIT -gt $HARD_TIME_LIMIT ]
+    then
+        echo "ERROR: the soft time limit should be less than equal to the hard limit" >&2
+        exit 1
+    fi
 fi
 
 ################################################################
@@ -94,6 +98,56 @@ export SEARCH_DIR=$FD_DIR/src/search
 export SEARCH="$SEARCH_DIR/downward $OPTIONS"
 
 ################################################################
+#### functions
+
+fd (){
+    ulimit -v $MEMORY_USAGE -t $HARD_TIME_LIMIT
+    $TIMER $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log
+    echo Translation Finished
+    $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log
+    echo Preprocessing Finished
+    $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log
+    exit 0
+}
+
+soft_limit (){
+    if [[ $SOFT_TIME_LIMIT =~ ^[0-9]+$ ]]
+    then
+        sleep $SOFT_TIME_LIMIT
+        if ls sas_plan* &> /dev/null
+        then # パスが一つでもあれば終了
+            echo "PID ($$): Reached the SOFT limit. Path found, $FD_PID terminated"
+        else # なければ hard limit に至るまで続行
+            echo "PID ($$): Reached the SOFT limit. Continue searching..." >&2
+            touch sas_plan sas_plan.1 # for optimising / satisficing track
+            inotifywait sas_plan sas_plan.1
+            echo "PID ($$): Path found, $FD_PID terminated"
+        fi
+        exit 0
+    else
+        echo "ERROR: the soft time limit is malformed -- $SOFT_TIME_LIMIT"
+        exit 1
+    fi
+}
+
+timeout (){
+    case $SOFT_TIME_LIMIT in
+        unlimited) ;;
+        soft) ;;
+        hard) ;;
+        *) soft_limit ;;
+    esac
+}
+
+finalize (){
+    echo "Killing FD_PID=$FD_PID subprocess..."
+    $SCR_DIR/killall.sh $FD_PID -TERM
+    echo "Killing TIMEOUT_PID=$TIMEOUT_PID subprocess..."
+    $SCR_DIR/killall.sh $TIMEOUT_PID -TERM
+    $SCR_DIR/post.sh
+}
+
+################################################################
 #### main code
 
 # cleanup
@@ -120,68 +174,12 @@ then
     tail -f $PROBLEM_NAME.search.log &
 fi
 
-export FD_STATUS=$(mktemp)
-export TIMEOUT_STATUS=$(mktemp)
-coproc FD {
-    ulimit -v $MEMORY_USAGE -t $HARD_TIME_LIMIT
-    $TIMER $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log
-    echo Translation Finished
-    $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log
-    echo Preprocessing Finished
-    $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log
-    echo $? > $FD_STATUS
-}
-coproc TIMEOUT {
-    sleep $SOFT_TIME_LIMIT
-    echo t > $TIMEOUT_STATUS
-}
-
+fd &
+FD_PID=$!
+timeout &
+TIMEOUT_PID=$!
 echo "FD      Process $FD_PID"
 echo "TIMEOUT Process $TIMEOUT_PID"
-handler (){
-    echo "Killing FD_PID=$FD_PID subprocess..."
-    $SCR_DIR/killall.sh $FD_PID -TERM
-    echo "Killing TIMEOUT_PID=$TIMEOUT_PID subprocess..."
-    $SCR_DIR/killall.sh $TIMEOUT_PID -TERM
-    $SCR_DIR/post.sh
-}
-
-trap "handler" EXIT SIGINT SIGTERM
-
-CHECK_INTERVAL=1
-if [ $SOFT_TIME_LIMIT -lt $CHECK_INTERVAL ]
-then
-    CHECK_INTERVAL=$SOFT_TIME_LIMIT
-fi
-
-while true
-do
-    sleep $CHECK_INTERVAL
-    if [[ ! ( -e $FD_STATUS && -e $TIMEOUT_STATUS ) ]]
-    then
-        echo "Terminated Unexpectedly."
-        exit 2
-    elif [[ $(cat $FD_STATUS) != "" ]] # 何か書き込まれている = FDが終了
-    then
-        if [[ $(cat $FD_STATUS) == 0 ]] # 正常終了
-        then
-            echo "PID ($$): Search finished normally."
-            exit 0
-        else # ulimit による強制終了
-            echo "PID ($$): Reached the HARD limit, $FD_PID terminated"
-            exit 1
-        fi
-    elif [[ $(cat $TIMEOUT_STATUS) == t ]] # soft timeout
-    then
-        if ls sas_plan* &> /dev/null
-        then # パスが一つでもあれば終了
-            echo "PID ($$): Reached the SOFT limit. Path found, $FD_PID terminated"
-            exit 0
-        # else # なければ hard limit に至るまで続行
-        #     # echo "PID ($$): Reached the SOFT limit. Continue searching..." >&2
-        fi
-    fi
-done
-
-exit
+trap "finalize" EXIT
+wait $FD_PID
 
