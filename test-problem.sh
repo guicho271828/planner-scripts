@@ -72,22 +72,22 @@ fi
 # more setup codes
 
 export SCR_DIR=$(dirname $($REALPATH $0))
-export PDDL=$($REALPATH $1)
+export PROBLEM=$($REALPATH $1)
 
 if [[ $2 != "" ]]
 then
     export DOMAIN=$($REALPATH $2)
 else
-    export DOMAIN=${PDDL%/*}/domain.pddl
+    export DOMAIN=${PROBLEM%/*}/domain.pddl
 fi
 
-if [[ $PDDL =~ .*\.pddl ]]
+if [[ $PROBLEM =~ .*\.pddl ]]
 then
-    export PROBLEM_NAME=${PDDL%.pddl}
-elif [[ $PDDL =~ .*pfile.* ]]
+    export PROBLEM_NAME=${PROBLEM%.pddl}
+elif [[ $PROBLEM =~ .*pfile.* ]]
 then
     # pfile1 etc...
-    export PROBLEM_NAME=$PDDL
+    export PROBLEM_NAME=$PROBLEM
 fi  
 
 export SAS=$PROBLEM_NAME.sas
@@ -139,18 +139,19 @@ finalize (){
 
 fd (){
     ulimit -v $MEMORY_USAGE -t $HARD_TIME_LIMIT
-    $TIMER $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log || hard_limit
+    $TIMER $TRANSLATE $DOMAIN $PROBLEM &> $PROBLEM_NAME.translate.log || hard_limit translation
     vecho Translation Finished
-    $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log  || hard_limit
+    $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log  || hard_limit preprocess
     vecho Preprocessing Finished
-    $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log || hard_limit
+    $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log || hard_limit search
     vecho Search Finished
     echo 0 > $finished
 }
 
 hard_limit (){
-    vecho "Reached the Hard limit, terminating"
+    vecho "WARN: the program was terminated during $1"
     echo 1 > $finished
+    sleep 1 # wait for the inotifywait detection
 }
 export -f hard_limit
 
@@ -203,7 +204,7 @@ vecho $'\x1b[34;1m'---- process $PPID started -----------------------------
 vecho "MAX MEM(kB):          $MEMORY_USAGE"
 vecho "SOFT TIME LIMIT(sec): $SOFT_TIME_LIMIT"
 vecho "HARD TIME LIMIT(sec): $HARD_TIME_LIMIT"
-vecho "PROBLEM_NAME:         $PROBLEM_NAME"
+vecho "PROBLEM:              $PROBLEM"
 vecho "DOMAIN:               $DOMAIN"
 vecho "SEARCH COMMAND:       $SEARCH"
 vecho --------------------------------------------------------$'\x1b[0m'
