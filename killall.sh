@@ -12,13 +12,7 @@ target=$1
 shift 1
 children=$(pgrep -P $target)
 
-# cat <<EOF
-# PID:              $target
-# KILLOPTIONS:      $@
-# echo children:    $children
-# EOF
-
-pstree -pl $target
+$VERBOSE && pstree -pl $target
 for pid in $children
 do
     if [[ $pid != $$ ]]
@@ -27,5 +21,5 @@ do
     fi
 done
 
-echo "kill $@ $target"
+vecho "kill $@ $target"
 kill $@ $target

@@ -104,12 +104,35 @@ export finished
 ################################################################
 #### functions
 
+vecho (){
+    $VERBOSE && echo $@
+}
+export -f vecho
+vmv (){
+    if $VERBOSE
+    then
+        mv -v $@
+    else
+        mv $@
+    fi
+}
+export -f vmv
+vrm (){
+    if $VERBOSE
+    then
+        rm -v $@
+    else
+        rm $@
+    fi
+}
+export -f vrm
+
 finalize (){
-    echo "Killing FD_PID=$FD_PID subprocess..."
+    vecho "Killing FD_PID=$FD_PID subprocess..."
     $SCR_DIR/killall.sh $FD_PID -9
-    echo "Killing TIMEOUT_PID=$TIMEOUT_PID subprocess..."
+    vecho "Killing TIMEOUT_PID=$TIMEOUT_PID subprocess..."
     $SCR_DIR/killall.sh $TIMEOUT_PID -9
-    echo "Killing TAIL_PID=$TAIL_PID subprocess..."
+    vecho "Killing TAIL_PID=$TAIL_PID subprocess..."
     $SCR_DIR/killall.sh $TAIL_PID -9
     $SCR_DIR/post.sh
 }
@@ -117,16 +140,16 @@ finalize (){
 fd (){
     ulimit -v $MEMORY_USAGE -t $HARD_TIME_LIMIT
     $TIMER $TRANSLATE $DOMAIN $PDDL &> $PROBLEM_NAME.translate.log || hard_limit
-    echo Translation Finished
+    vecho Translation Finished
     $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log  || hard_limit
-    echo Preprocessing Finished
+    vecho Preprocessing Finished
     $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log || hard_limit
-    echo Search Finished
+    vecho Search Finished
     echo 0 > $finished
 }
 
 hard_limit (){
-    echo "Reached the Hard limit, terminating"
+    vecho "Reached the Hard limit, terminating"
     echo 1 > $finished
 }
 export -f hard_limit
@@ -137,22 +160,22 @@ soft_limit (){
         sleep $SOFT_TIME_LIMIT
         if ls sas_plan* &> /dev/null
         then # パスが一つでもあれば終了
-            echo "PID ($$): Reached the SOFT limit. Path found, $FD_PID terminated"
+            vecho "PID ($$): Reached the SOFT limit. Path found, $FD_PID terminated"
         else # なければ hard limit に至るまで続行
-            echo "PID ($$): Reached the SOFT limit. Continue searching..." >&2
+            vecho "PID ($$): Reached the SOFT limit. Continue searching..." >&2
             # touch sas_plan sas_plan.1 # for optimising / satisficing track
-            inotifywait \
+            inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) \
                 --exclude ".*\.sas" \
                 --exclude ".*\.groups" \
                 --exclude ".*\.time" \
                 --exclude "output" \
                 --exclude "plan_numbers_and_cost" \
                 -e create ./
-            echo "PID ($$): Path found, $FD_PID terminated"
+            vecho "PID ($$): Path found, $FD_PID terminated"
         fi
         echo 0 > $finished
     else
-        echo "ERROR: the soft time limit is malformed -- $SOFT_TIME_LIMIT" >&2
+        vecho "ERROR: the soft time limit is malformed -- $SOFT_TIME_LIMIT" >&2
         echo 1 > $finished
     fi
 }
@@ -170,24 +193,25 @@ timeout (){
 #### main code
 
 # cleanup
-rm -f $PROBLEM_NAME.time
-rm -f $PROBLEM_NAME.cost
-rm -f $PROBLEM_NAME.*.log
-rm -f $PROBLEM_NAME.plan*
-rm -f $SAS $SAS_PLUS
+vrm -f $PROBLEM_NAME.time
+vrm -f $PROBLEM_NAME.cost
+vrm -f $PROBLEM_NAME.*.log
+vrm -f $PROBLEM_NAME.plan*
+vrm -f $SAS $SAS_PLUS
 
-echo $'\x1b[34;1m'---- process $PPID started -----------------------------
-echo "MAX MEM(kB):          $MEMORY_USAGE"
-echo "SOFT TIME LIMIT(sec): $SOFT_TIME_LIMIT"
-echo "HARD TIME LIMIT(sec): $HARD_TIME_LIMIT"
-echo "PROBLEM_NAME:         $PROBLEM_NAME"
-echo "DOMAIN:               $DOMAIN"
-echo "SEARCH COMMAND:       $SEARCH"
-echo --------------------------------------------------------$'\x1b[0m'
+vecho $'\x1b[34;1m'---- process $PPID started -----------------------------
+vecho "MAX MEM(kB):          $MEMORY_USAGE"
+vecho "SOFT TIME LIMIT(sec): $SOFT_TIME_LIMIT"
+vecho "HARD TIME LIMIT(sec): $HARD_TIME_LIMIT"
+vecho "PROBLEM_NAME:         $PROBLEM_NAME"
+vecho "DOMAIN:               $DOMAIN"
+vecho "SEARCH COMMAND:       $SEARCH"
+vecho --------------------------------------------------------$'\x1b[0m'
 
 export TMPDIR=$(mktemp -d)
 pushd $TMPDIR
 export finished=$(mktemp)
+
 if $VERBOSE
 then
     touch $PROBLEM_NAME.search.log
@@ -199,9 +223,10 @@ fd &
 export FD_PID=$!
 timeout &
 export TIMEOUT_PID=$!
-echo "FD      Process $FD_PID"
-echo "TIMEOUT Process $TIMEOUT_PID"
+
+vecho "FD      Process $FD_PID"
+vecho "TIMEOUT Process $TIMEOUT_PID"
 trap "finalize" EXIT
 
-inotifywait $finished
+inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) $finished
 exit $(cat $finished)

@@ -2,34 +2,34 @@
 
 # moves the output files
 
-mv output.sas $SAS
+vmv output.sas $SAS
 for groups in $(ls *.groups 2> /dev/null)
 do
-    mv $groups $PROBLEM_NAME.$groups
+    vmv $groups $PROBLEM_NAME.$groups
 done
-mv output $SAS_PLUS
-mv elapsed.time $PROBLEM_NAME.time
-mv plan_numbers_and_cost $PROBLEM_NAME.cost
+vmv output $SAS_PLUS
+vmv elapsed.time $PROBLEM_NAME.time
+vmv plan_numbers_and_cost $PROBLEM_NAME.cost
 
-echo $'\x1b[34;1m'---- process $PPID finished ----------------------------
+vecho $'\x1b[34;1m'---- process $PPID finished ----------------------------
 if [[ -e sas_plan.1 ]]
 then
-    echo Result:
+    vecho Result:
     for plan in $(ls sas_plan.*)
     do
-        mv $plan $PROBLEM_NAME.plan.${plan##*.}
-        echo $PROBLEM_NAME.plan.${plan##*.}
+        vmv $plan $PROBLEM_NAME.plan.${plan##*.}
+        vecho $PROBLEM_NAME.plan.${plan##*.}
     done
-    cat $PROBLEM_NAME.cost
+    $VERBOSE && cat $PROBLEM_NAME.cost
 elif [[ -e sas_plan ]]
 then
-    mv sas_plan $PROBLEM_NAME.plan.1
-    echo "Result: $PROBLEM_NAME.plan.1"
-    cat $PROBLEM_NAME.cost
+    vmv sas_plan $PROBLEM_NAME.plan.1
+    vecho "Result: $PROBLEM_NAME.plan.1"
+    $VERBOSE && cat $PROBLEM_NAME.cost
 else
-    echo "Search Failed: No path was found in the current configuration."
+    vecho "Search Failed: No path was found in the current configuration."
 fi
-echo --------------------------------------------------------$'\x1b[0m'
+vecho --------------------------------------------------------$'\x1b[0m'
 
 # cleanup
-rm -rfv $TMPDIR $FD_STATUS $TIMEOUT_STATUS
+vrm -rf $TMPDIR $FD_STATUS $TIMEOUT_STATUS
