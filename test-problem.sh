@@ -209,7 +209,12 @@ vecho "SEARCH COMMAND:       $SEARCH"
 vecho --------------------------------------------------------$'\x1b[0m'
 
 export TMPDIR=$(mktemp -d)
-pushd $TMPDIR
+if $VERBOSE
+then
+    pushd $TMPDIR
+else
+    pushd $TMPDIR > /dev/null
+fi
 export finished=$(mktemp)
 
 if $VERBOSE
