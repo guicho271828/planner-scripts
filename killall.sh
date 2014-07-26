@@ -2,7 +2,7 @@
 
 if [[ $2 == "" ]]
 then
-    cat <<EOF
+    $VERBOSE && cat <<EOF
 usage: killall.sh PID KILLOPTIONS
 EOF
     exit 1
