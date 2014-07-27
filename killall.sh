@@ -22,4 +22,4 @@ do
 done
 
 vecho "kill $@ $target"
-kill $@ $target
+kill $@ $target 2> /dev/null
