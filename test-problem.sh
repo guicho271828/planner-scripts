@@ -134,6 +134,8 @@ finalize (){
     $SCR_DIR/killall.sh $TIMEOUT_PID -9
     vecho "Killing TAIL_PID=$TAIL_PID subprocess..."
     $SCR_DIR/killall.sh $TAIL_PID -9
+    vecho "Killing INOTIFY_PID=$INOTIFY_PID subprocess..."
+    $SCR_DIR/killall.sh $INOTIFY_PID -9
     $SCR_DIR/post.sh
 }
 
@@ -232,7 +234,9 @@ export TIMEOUT_PID=$!
 
 vecho "FD      Process $FD_PID"
 vecho "TIMEOUT Process $TIMEOUT_PID"
-trap "finalize" EXIT
+trap "finalize" EXIT SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
 
-inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) $finished
+inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) $finished &
+INOTIFY_PID=$!
+wait $INOTIFY_PID
 exit $(cat $finished)

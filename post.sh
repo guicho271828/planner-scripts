@@ -32,4 +32,4 @@ fi
 vecho --------------------------------------------------------$'\x1b[0m'
 
 # cleanup
-vrm -rf $TMPDIR $FD_STATUS $TIMEOUT_STATUS
+vrm -rf $TMPDIR
