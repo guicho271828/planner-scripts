@@ -13,7 +13,7 @@ fi
 export TIMER='eval /usr/bin/time -f "real %e\nuser %U\nsys %S\nmaxmem %M"'
 export SOFT_TIME_LIMIT=1795
 export HARD_TIME_LIMIT=1800
-export MEMORY_USAGE=2000000
+export MEMORY_USAGE=2000000 # kB
 export OPTIONS="ipc seq-sat-lama-2011"
 export VERBOSE=false
 
@@ -25,7 +25,7 @@ do
     case ${opt} in
         v)  # increase verbosity: tail -f search.log during the search
             VERBOSE=true ;; # true
-        t)  # soft limit of the downward execution time
+        t)  # soft limit of the downward execution time, in seconds.
             # if no path was found when the time reached the limit
             # continues to search until the hard limit is reached.
             # if the path was already found then finishes
@@ -34,7 +34,7 @@ do
         T)  # hard limit of the downward execution time
             # default value is 30 min (same as ICAPS)
             HARD_TIME_LIMIT=${OPTARG:-$HARD_TIME_LIMIT} ;;
-        m)  # limit memory usage under 1 GB
+        m)  # limit on the memory usage, in kB.
             MEMORY_USAGE=${OPTARG:-$MEMORY_USAGE} ;;
         o)  # specifies the search option
             OPTIONS=${OPTARG:-$OPTIONS} ;;
