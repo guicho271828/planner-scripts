@@ -166,14 +166,11 @@ soft_limit (){
             vecho "PID ($$): Reached the SOFT limit. Path found, $FD_PID terminated"
         else # なければ hard limit に至るまで続行
             vecho "PID ($$): Reached the SOFT limit. Continue searching..." >&2
-            # touch sas_plan sas_plan.1 # for optimising / satisficing track
-            inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) \
-                --exclude ".*\.sas" \
-                --exclude ".*\.groups" \
-                --exclude ".*\.time" \
-                --exclude "output" \
-                --exclude "plan_numbers_and_cost" \
-                -e create ./
+            if [[ ! ( -e sas_plan || -e sas_plan.1 ) ]]
+            then
+                touch sas_plan sas_plan.1
+                inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) sas_plan sas_plan.1
+            fi
             vecho "PID ($$): Path found, $FD_PID terminated"
         fi
         echo 0 > $finished
@@ -218,7 +215,7 @@ then
 else
     pushd $TMPDIR > /dev/null
 fi
-export finished=$(mktemp)
+export finished=$(mktemp finished.XXXXXX)
 
 if $VERBOSE
 then
