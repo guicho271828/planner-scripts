@@ -63,8 +63,8 @@ if [[ ( $SOFT_TIME_LIMIT =~ $re ) && ( $HARD_TIME_LIMIT =~ $re ) ]]
 then
     if [ $SOFT_TIME_LIMIT -gt $HARD_TIME_LIMIT ]
     then
-        echo "ERROR: the soft time limit should be less than equal to the hard limit" >&2
-        exit 1
+        echo "WARN: the soft time limit should be less than equal to the hard limit" >&2
+        SOFT_TIME_LIMIT=$(($HARD_TIME_LIMIT - 1))
     fi
 fi
 
