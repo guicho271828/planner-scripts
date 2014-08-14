@@ -141,11 +141,14 @@ finalize (){
 
 fd (){
     ulimit -v $MEMORY_USAGE -t $HARD_TIME_LIMIT
-    $TIMER $TRANSLATE $DOMAIN $PROBLEM &> $PROBLEM_NAME.translate.log || hard_limit translation
+    $TIMER $TRANSLATE $DOMAIN $PROBLEM &> $PROBLEM_NAME.translate.log \
+        || ( hard_limit translation && return 1 )
     vecho Translation Finished
-    $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log  || hard_limit preprocess
+    $TIMER $PREPROCESS < output.sas &> $PROBLEM_NAME.preprocess.log \
+        || ( hard_limit preprocess && return 1 )
     vecho Preprocessing Finished
-    $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log || hard_limit search
+    $TIMER $SEARCH < output &> $PROBLEM_NAME.search.log \
+        || ( hard_limit search && return 1 )
     vecho Search Finished
     echo 0 > $finished
 }
@@ -153,7 +156,6 @@ fd (){
 hard_limit (){
     vecho "WARN: the program was terminated during $1"
     echo 1 > $finished
-    sleep 1 # wait for the inotifywait detection
 }
 export -f hard_limit
 
@@ -235,5 +237,8 @@ trap "finalize" EXIT SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
 
 inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) $finished &
 INOTIFY_PID=$!
-wait $INOTIFY_PID
+if [[ $(cat $finished) == "" ]] # fd might already finished
+then
+    wait $INOTIFY_PID
+fi
 exit $(cat $finished)
