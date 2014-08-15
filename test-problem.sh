@@ -226,9 +226,9 @@ then
     TAIL_PID=$!
 fi
 
-fd &
+fd 2> /dev/null &
 export FD_PID=$!
-timeout &
+timeout 2> /dev/null &
 export TIMEOUT_PID=$!
 
 vecho "FD      Process $FD_PID"
