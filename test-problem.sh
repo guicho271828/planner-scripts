@@ -239,7 +239,7 @@ do
     trap "echo; echo \"Received signal $signal\"; finalize" $signal
 done
 
-inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) $finished &
+inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) -e modify $finished &
 INOTIFY_PID=$!
 if [[ $(cat $finished) == "" ]] # fd might already finished
 then
