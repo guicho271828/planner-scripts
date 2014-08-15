@@ -20,7 +20,7 @@ export VERBOSE=false
 ################################################################
 #### option processing
 
-while getopts ":vst:T:m:o:" opt
+while getopts ":vt:T:m:o:" opt
 do
     case ${opt} in
         v)  # increase verbosity: tail -f search.log during the search
@@ -128,6 +128,7 @@ vrm (){
 export -f vrm
 
 finalize (){
+    echo "exit status : $(cat $finished)"
     vecho "Killing FD_PID=$FD_PID subprocess..."
     $SCR_DIR/killall.sh $FD_PID -9
     vecho "Killing TIMEOUT_PID=$TIMEOUT_PID subprocess..."
@@ -210,7 +211,7 @@ vecho "DOMAIN:               $DOMAIN"
 vecho "SEARCH COMMAND:       $SEARCH"
 vecho --------------------------------------------------------$'\x1b[0m'
 
-export TMPDIR=$(mktemp -d)
+export TMPDIR=$(mktemp -d --tmpdir fastdownward.XXXXXX)
 if $VERBOSE
 then
     pushd $TMPDIR
@@ -233,7 +234,10 @@ export TIMEOUT_PID=$!
 
 vecho "FD      Process $FD_PID"
 vecho "TIMEOUT Process $TIMEOUT_PID"
-trap "finalize" EXIT SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
+for signal in SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
+do
+    trap "echo; echo \"Received signal $signal\"; finalize" $signal
+done
 
 inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) $finished &
 INOTIFY_PID=$!
