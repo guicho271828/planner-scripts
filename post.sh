@@ -10,9 +10,13 @@ done
 vmv -f output $SAS_PLUS 2> /dev/null
 vmv -f elapsed.time $PROBLEM_NAME.time 2> /dev/null
 vmv -f plan_numbers_and_cost $PROBLEM_NAME.cost 2> /dev/null
+
 for plan in $(ls sas_plan* 2> /dev/null)
 do
-    vmv -f $plan $PROBLEM_NAME.${plan##*_}
+    if [[ $(cat $plan) != "" ]]
+    then
+        vmv -f $plan $PROBLEM_NAME.${plan##*_}
+    fi
 done
 
 vecho $'\x1b[34;1m'---- process $PPID finished ----------------------------
