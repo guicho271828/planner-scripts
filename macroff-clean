@@ -143,7 +143,7 @@ fi
 
 if [[ -e problem.pddl.soln ]]
 then
-    cat problem.pddl.soln | sed -e "s/Time.*$//g" > ${problem%pddl}$plan_suffix
+    cat problem.pddl.soln | grep -v "^Time" > ${problem%pddl}$plan_suffix
 else
     vecho "No plan found!"
 fi
