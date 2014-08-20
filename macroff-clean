@@ -131,10 +131,21 @@ pushd $tmp > /dev/null
 vcp $problem problem.pddl
 vcp $domain domain.pddl
 echo hi! >> log
+plan &>> log &
+pid=$!
 
-if $(if $VERBOSE ; then echo "plan &>> log" ; else echo "plan 2>&1 | tee -a log" ; fi )
+if $VERBOSE
+then
+    tail -f --pid $pid log
+else
+    wait $pid
+fi
+
+if [[ -e problem.pddl.soln ]]
 then
     cat problem.pddl.soln | sed -e "s/Time.*$//g" > ${problem%pddl}$plan_suffix
+else
+    vecho "No plan found!"
 fi
 
 vcp log ${problem%pddl}$log_suffix
