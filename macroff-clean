@@ -63,10 +63,10 @@ done
 if [[ $PREFIX == "" ]]
 then
     plan_suffix=plan
-    log_suffix=log
+    log_suffix=search.log
 else
     plan_suffix=$PREFIX.plan
-    log_suffix=$PREFIX.log
+    log_suffix=$PREFIX.search.log
 fi
 
 shift $(($OPTIND - 1))
