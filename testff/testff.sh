@@ -23,3 +23,7 @@
 ../clean.sh
 ../macroff-clean -v -t 1 p01.pddl domain.pddl
 
+# what happens when there are no solution?
+../clean.sh
+../macroff-clean -v -t 1 unsolvable.pddl domain.pddl
+
