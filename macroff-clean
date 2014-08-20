@@ -27,19 +27,28 @@ v (){
         $name $@
     fi
 }
-vmv (){ v mv $@ }
-vrm (){ v rm $@ }
-vcp (){ v cp $@ }
+vmv (){
+    v mv $@
+}
+vrm (){
+    v rm $@
+}
+vcp (){
+    v cp $@
+}
 
 ################################################################
 #### option processing
 
-while getopts ":vt:m:o:p:" opt
+while getopts ":vt:T:m:o:p:" opt
 do
     case ${opt} in
         v)  # increase verbosity: tail -f search.log during the search
             VERBOSE=true ;; # true
         t) 
+            TIME_LIMIT=${OPTARG:-$TIME_LIMIT} ;;
+        T) 
+            echo "-T option has the same meaning in macroff-clean" >&2
             TIME_LIMIT=${OPTARG:-$TIME_LIMIT} ;;
         m)  # 
             MEMORY_USAGE=${OPTARG:-$MEMORY_USAGE} ;;

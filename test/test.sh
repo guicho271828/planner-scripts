@@ -1,6 +1,6 @@
 #! /bin/bash
 
-
+## fastdownward
 # this should finish normally (because it is easy)
 ../clean.sh
 ../test-problem.sh p0001.pddl domain.pddl
