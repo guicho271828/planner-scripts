@@ -1,0 +1,133 @@
+#!/bin/bash
+#-*- mode:sh -*-
+
+################################################################
+#### default options
+
+MACROFF=$HOME/repos/macroff/macroff
+TIME_LIMIT=1800
+MEMORY_USAGE=2000000 # KB
+OPTIONS=""
+PREFIX=""
+VERBOSE=false
+
+################################################################
+#### functions
+
+vecho (){
+    $VERBOSE && echo $@
+}
+v (){
+    name=$1
+    shift
+    if $VERBOSE
+    then
+        $name -v $@
+    else
+        $name $@
+    fi
+}
+vmv (){ v mv $@ }
+vrm (){ v rm $@ }
+vcp (){ v cp $@ }
+
+################################################################
+#### option processing
+
+while getopts ":vt:m:o:p:" opt
+do
+    case ${opt} in
+        v)  # increase verbosity: tail -f search.log during the search
+            VERBOSE=true ;; # true
+        t) 
+            TIME_LIMIT=${OPTARG:-$TIME_LIMIT} ;;
+        m)  # 
+            MEMORY_USAGE=${OPTARG:-$MEMORY_USAGE} ;;
+        o)  # specifies the search option
+            OPTIONS=${OPTARG:-$OPTIONS} ;;
+        p)  PREFIX=${OPTARG:-$PREFIX} ;;
+        \?) OPT_ERROR=1; break;;
+        * ) echo "unsupported option $opt" ;;
+    esac
+done
+
+if [[ $PREFIX == "" ]]
+then
+    plan_suffix=plan
+    log_suffix=log
+else
+    plan_suffix=$PREFIX.plan
+    log_suffix=$PREFIX.log
+fi
+
+shift $(($OPTIND - 1))
+
+if [[ ( $1 == "" ) || $OPT_ERROR ]]
+then
+    cat >&2 <<EOF
+usage: ./test-problem
+       [-v]
+       [-t TIME_LIMIT]     -- time limit
+       [-m MEMORY_LIMIT]   -- limit on the memory usage, in kb.
+       [-o OPTIONS]        -- search options
+       [-p PREFIX]         -- output file prefix
+       problemfile [domainfile]
+EOF
+    exit 2
+fi
+
+################################################################
+#### argument processing
+
+problem=$(readlink -ef $1)
+probdir=$(dirname $problem)
+
+if [[ $2 != "" ]]
+then
+    domain=$(readlink -ef $2)
+else
+    domain=$probdir/domain.pddl
+fi
+if [[ ! -e $domain ]]
+then
+    echo "no domain file $domain!" >&2
+    exit 1
+fi
+
+################################################################
+#### main
+
+tmp=$(mktemp -d --tmpdir=/tmp macroff.XXXXXXX )
+vecho $tmp
+
+plan(){
+    vecho $(whoami)@$(hostname)
+    vecho "ulimit -v $MEMORY_USAGE -t $TIME_LIMIT"
+    ulimit -v $MEMORY_USAGE -t $TIME_LIMIT
+    /usr/bin/time -f "real %e\nuser %U\nsys %S\nmaxmem %M" $MACROFF \
+        $(if $VERBOSE ; then echo "-i 3" ; fi) \
+        $OPTIONS \
+        -b edomain.pddl \
+        -r macros \
+        -f problem.pddl \
+        -o domain.pddl
+}
+
+################################################################
+
+# cleanup
+vrm -f ${problem%pddl}$log_suffix ${problem%pddl}$plan_suffix
+
+pushd $tmp > /dev/null
+vcp $problem problem.pddl
+vcp $domain domain.pddl
+echo hi! >> log
+
+if $(if $VERBOSE ; then echo "plan &>> log" ; else echo "plan 2>&1 | tee -a log" ; fi )
+then
+    cat problem.pddl.soln | sed -e "s/Time.*$//g" > ${problem%pddl}$plan_suffix
+fi
+
+vcp log ${problem%pddl}$log_suffix
+
+popd > /dev/null
