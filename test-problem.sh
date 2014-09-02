@@ -64,6 +64,8 @@ then
     if [ $SOFT_TIME_LIMIT -gt $HARD_TIME_LIMIT ]
     then
         echo "WARN: the soft time limit should be less than equal to the hard limit" >&2
+        echo "WARN: soft: $SOFT_TIME_LIMIT hard: $HARD_TIME_LIMIT" >&2
+        echo "WARN: Resetting soft limi to \$HARD_TIME_LIMIT - 1: $(($HARD_TIME_LIMIT - 1))" >&2
         SOFT_TIME_LIMIT=$(($HARD_TIME_LIMIT - 1))
     fi
 fi
