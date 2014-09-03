@@ -17,6 +17,7 @@ VERBOSE=false
 vecho (){
     $VERBOSE && echo $@
 }
+export -f vecho
 v (){
     name=$1
     shift
@@ -123,8 +124,7 @@ plan(){
 }
 
 finalize (){
-
-    $(dirname $0)/killall.sh $PLAN_PID
+    $(dirname $0)/killall.sh $pid -15
 
     if [[ -e problem.pddl.soln ]]
     then
