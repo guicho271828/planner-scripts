@@ -4,7 +4,7 @@
 ################################################################
 #### default options
 
-MACROFF=$HOME/repos/macroff/macroff
+MACROFF=$(dirname $0)/macroff
 TIME_LIMIT=1800
 MEMORY_USAGE=2000000 # KB
 OPTIONS=""
