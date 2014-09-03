@@ -122,7 +122,23 @@ plan(){
         -o domain.pddl
 }
 
+finalize (){
+
+    $(dirname $0)/killall.sh $PLAN_PID
+
+    if [[ -e problem.pddl.soln ]]
+    then
+        cat problem.pddl.soln | grep -v "^Time" > ${problem%pddl}$plan_suffix
+    else
+        vecho "No plan found!"
+    fi
+
+    vcp log ${problem%pddl}$log_suffix
+}
+
 ################################################################
+
+trap "finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
 
 # cleanup
 vrm -f ${problem%pddl}$log_suffix ${problem%pddl}$plan_suffix
@@ -141,13 +157,3 @@ else
     wait $pid
 fi
 
-if [[ -e problem.pddl.soln ]]
-then
-    cat problem.pddl.soln | grep -v "^Time" > ${problem%pddl}$plan_suffix
-else
-    vecho "No plan found!"
-fi
-
-vcp log ${problem%pddl}$log_suffix
-
-popd > /dev/null
