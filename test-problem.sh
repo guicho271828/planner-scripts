@@ -236,10 +236,8 @@ export TIMEOUT_PID=$!
 
 vecho "FD      Process $FD_PID"
 vecho "TIMEOUT Process $TIMEOUT_PID"
-for signal in SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
-do
-    trap "echo; echo \"Received signal $signal\"; finalize" $signal
-done
+
+trap "finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
 
 inotifywait $(if ! $VERBOSE ; then echo -qq ; fi) -e modify $finished &
 INOTIFY_PID=$!
