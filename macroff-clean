@@ -61,6 +61,8 @@ do
     esac
 done
 
+vecho "$0 $@"
+
 if [[ $PREFIX == "" ]]
 then
     plan_suffix=plan

@@ -43,6 +43,8 @@ do
     esac
 done
 
+vecho "$0 $@"
+
 shift $(($OPTIND - 1))
 
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
