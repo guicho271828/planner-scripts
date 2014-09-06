@@ -9,7 +9,7 @@ TIME_LIMIT=1800
 MEMORY_USAGE=2000000 # KB
 OPTIONS=""
 PREFIX=""
-VERBOSE=false
+export VERBOSE=false
 
 ################################################################
 #### functions
