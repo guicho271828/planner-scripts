@@ -1,5 +1,7 @@
 #! /bin/bash
 
+. $(dirname $(readlink -ef $0))/util.sh
+
 FD_DIR=~/repos/downward
 REALPATH=$(which realpath)
 if [[ $REALPATH == "" ]]
@@ -107,29 +109,6 @@ export finished
 
 ################################################################
 #### functions
-
-vecho (){
-    $VERBOSE && echo $@
-}
-export -f vecho
-vmv (){
-    if $VERBOSE
-    then
-        mv -v $@
-    else
-        mv $@
-    fi
-}
-export -f vmv
-vrm (){
-    if $VERBOSE
-    then
-        rm -v $@
-    else
-        rm $@
-    fi
-}
-export -f vrm
 
 finalize (){
     echo "exit status : $(cat $finished)"
