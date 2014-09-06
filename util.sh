@@ -3,7 +3,6 @@
 vecho (){
     $VERBOSE && echo $@
 }
-export -f vecho
 
 v (){
     name=$1
@@ -25,6 +24,5 @@ vrm (){
 vcp (){
     v cp $@
 }
-export -f vrm
-export -f vmv
-export -f vcp
+
+export -f vecho vrm vmv vcp v
