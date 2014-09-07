@@ -199,7 +199,7 @@ vecho "DOMAIN:               $DOMAIN"
 vecho "SEARCH COMMAND:       $SEARCH"
 vecho --------------------------------------------------------$'\x1b[0m'
 
-export TMPDIR=$(mktemp -d --tmpdir fastdownward.XXXXXX)
+export TMPDIR=$(mktemp -d --tmpdir=/tmp/newtmp fastdownward.XXXXXX)
 if $VERBOSE
 then
     pushd $TMPDIR

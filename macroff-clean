@@ -92,7 +92,7 @@ fi
 ################################################################
 #### main
 
-tmp=$(mktemp -d --tmpdir=/tmp macroff.XXXXXXX )
+tmp=$(mktemp -d --tmpdir==/tmp/newtmp macroff.XXXXXXX )
 vecho $tmp
 
 plan(){
