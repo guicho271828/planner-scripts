@@ -10,13 +10,14 @@ mkdir -p $cgmem
 mem=-1
 time=-1
 
-while getopts ":t:m:" opt
+while getopts ":-t:m:" opt
 do
     case ${opt} in
         t)  # hard limit of the execution time, in sec.
             time=${OPTARG};;
         m)  # limit on the memory usage, in kB.
             mem=${OPTARG};;
+        -)  break ;;
         \?) OPT_ERROR=1; break;;
         * ) echo "unsupported option $opt" ;;
     esac
