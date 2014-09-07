@@ -18,15 +18,20 @@ export HARD_TIME_LIMIT=1800
 export MEMORY_USAGE=2000000 # kB
 export OPTIONS="ipc seq-sat-lama-2011"
 export VERBOSE=false
+export DEBUG=false
 
 ################################################################
 #### option processing
 
-while getopts ":vt:T:m:o:" opt
+while getopts ":vdt:T:m:o:" opt
 do
     case ${opt} in
         v)  # increase verbosity: tail -f search.log during the search
             VERBOSE=true ;; # true
+        d)  # do not remove the temporary directory for debugging
+            # assume -v
+            DEBUG=true ;
+            VERBOSE=true ;;
         t)  # soft limit of the downward execution time, in seconds.
             # if no path was found when the time reached the limit
             # continues to search until the hard limit is reached.

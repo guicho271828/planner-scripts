@@ -30,4 +30,4 @@ fi
 vecho --------------------------------------------------------$'\x1b[0m'
 
 # cleanup
-# vrm -rf $TMPDIR
+$DEBUG || rm -rf $TMPDIR
