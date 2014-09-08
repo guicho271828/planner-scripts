@@ -63,7 +63,6 @@ EOF
 }
 
 finalize (){
-    wait
     rmdir $cgcpu $cgmem
     $DEBUG || rm -rf $TMP
     $DEBUG && echo Debug flag is on, $TMP not removed!

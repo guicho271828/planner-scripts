@@ -1,0 +1,77 @@
+#!/bin/bash
+#-*- mode:sh -*-
+
+################################################################
+#### default options
+
+fd_dir=~/repos/downward
+translate=$fd_dir/src/translate/translate.py
+preprocess=$fd_dir/src/preprocess/preprocess # < output.sas
+search=$fd_dir/src/search/downward
+options="ipc seq-sat-lama-2011"
+
+################################################################
+#### main
+
+plan(){
+    vecho $(whoami)@$(hostname)
+    sas=$probdir/$probname.sas
+    sas_plus=$probdir/$probname.sasp
+    if time $translate domain.pddl problem.pddl &> log
+    then
+        vecho Translation Finished
+    else
+        vecho Translation Terminated
+        exit 1
+    fi
+
+    if time $preprocess < output.sas &> log
+    then
+        vecho Preprocess Finished
+    else
+        vecho Preprocess Terminated
+        exit 1
+    fi
+
+    if time $search $options < output &> log
+    then
+        vecho Search Finished
+    else
+        vecho Search Terminated
+        exit 1
+    fi
+}
+
+finalize (){
+    $SCRDIR/killall.sh $pid -9
+    mv -f output.sas $sas 2> /dev/null
+    for groups in $(ls *.groups 2> /dev/null)
+    do
+        mv -f $groups $probdir/$probname.$groups
+    done
+    mv -f output $sas_plus 2> /dev/null
+    mv -f elapsed.time $probdir/$probname.time 2> /dev/null
+    mv -f plan_numbers_and_cost $probdir/$probname.cost 2> /dev/null
+    for plan in $(ls sas_plan* 2> /dev/null)
+    do
+        if [[ $(cat $plan) != "" ]]
+        then
+            mv -f $plan $probdir/$probname.${plan##*_}
+        fi
+    done
+}
+
+negatively-proven (){
+    grep "Completely explored state space" log
+}
+
+report-results (){
+    plans=$(ls $probdir/$probname.plan* 2> /dev/null)
+    local status=$?
+    $VERBOSE && cat $probdir/$probname.cost
+    return $status
+}
+
+################################################################
+
+. $SCRDIR/common.sh

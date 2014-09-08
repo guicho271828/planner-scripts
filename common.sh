@@ -48,19 +48,30 @@ fi
 
 ################################################################
 #### common finalization hook (further call finalize)
+# automatically copies the log and stat file
+# but not plan files: because they are planner specific
 
+_interrupt (){
+    echo "Interrupted!"
+    mykill $pid
+    exit 1
+}
 _finalize (){
-    $SCRDIR/killall.sh $pid -15
     cp $STAT $probdir/$probname.stat
     cp log $probdir/$probname.log
     negatively-proven && touch $probdir/$probname.negative
     finalize
+    vecho $'\x1b[34;1m'--------------------------------------------------------
+    vecho Result:
+    ( report-results 2> /dev/null ) || vecho "Search Failed: No path was found in the current configuration."
+    vecho --------------------------------------------------------$'\x1b[0m'
 }
 
 ################################################################
 #### run
 
-trap "_finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
+trap "_interrupt" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
+trap "_finalize" EXIT
 pushd $TMP > /dev/null
 
 cp $problem problem.pddl

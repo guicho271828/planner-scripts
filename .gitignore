@@ -2,3 +2,7 @@
 *.qsub
 *.stat
 *.negative
+*plan*
+*cost
+*time
+*sas*

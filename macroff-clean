@@ -29,6 +29,10 @@ negatively-proven (){
     grep "problem proven unsolvable" log
 }
 
+report-results (){
+    cat plan | wc -l
+}
+
 ################################################################
 
 . $SCRDIR/common.sh

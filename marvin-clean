@@ -45,4 +45,8 @@ negatively-proven (){
     grep "Could not find plan by exhaustive search" log
 }
 
+report-results (){
+    grep "MakeSpan" log
+}
+
 . $SCRDIR/common.sh
