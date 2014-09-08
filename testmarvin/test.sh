@@ -7,28 +7,22 @@
 ../clean.sh
 ../limit.sh ../marvin-clean p01.pddl domain.pddl
 
-../clean.sh
 ../limit.sh -t 1 -- ../marvin-clean p01.pddl domain.pddl
 
-../clean.sh
 ../limit.sh -t 1 -- ../marvin-clean p18.pddl domain.pddl
 
 # increased verbosity
-../clean.sh
 ../limit.sh -t 1 -v -- ../marvin-clean p01.pddl domain.pddl
 
 
 # debugging: do not remove temporary directory
-../clean.sh
 ../limit.sh -t 1 -d -- ../marvin-clean  p03.pddl domain.pddl
 
 # debugging: test marvin -l option
-../clean.sh
 ../limit.sh -t 1 -d -- ../marvin-clean -o "-l" p03.pddl domain.pddl
 
 
 
 # what happens when there are no solution?
-../clean.sh
 ../limit.sh -t 1 -v -- ../marvin-clean unsolvable.pddl domain.pddl
 

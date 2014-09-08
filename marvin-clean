@@ -7,52 +7,7 @@
 bin=$SCRDIR/marvin
 options=""
 . $SCRDIR/util.sh
-
-################################################################
-#### option processing
-
-while getopts ":o:" opt
-do
-    case ${opt} in
-        o)  # specifies the search option
-            options=${OPTARG:-$options} ;;
-        \?) OPT_ERROR=1; break;;
-        * ) echo "unsupported option $opt" ;;
-    esac
-done
-
-vecho "$0 $@"
-
-shift $(($OPTIND - 1))
-
-if [[ ( $1 == "" ) || $OPT_ERROR ]]
-then
-    cat >&2 <<EOF
-usage: ./test-problem
-       [-o OPTIONS]        -- search options
-       problemfile [domainfile=domain.pddl]
-EOF
-    exit 2
-fi
-
-################################################################
-#### argument processing
-
-problem=$(readlink -ef $DIR/$1)
-probname=$(basename $problem .pddl)
-probdir=$(dirname $problem)
-
-if [[ $2 != "" ]]
-then
-    domain=$(cd $DIR; readlink -ef $2)
-else
-    domain=$probdir/domain.pddl
-fi
-if [[ ! -e $domain ]]
-then
-    echo "no domain file $domain!" >&2
-    exit 1
-fi
+. $SCRDIR/common.sh
 
 ################################################################
 #### main
@@ -87,23 +42,11 @@ finalize (){
     # 5: (drop hoist1 crate1 pallet1 distributor0) [1]
     # 6: (unload hoist2 crate0 truck1 distributor1) [1]
     # 7: (drop hoist2 crate0 pallet2 distributor1) [1]
-    grep "^[0-9]\+: ([^)]*) \[[0-9]*\]" log | cut -d " " -f 2- | sed -e "s/\[[0-9]\+\]//g" \
-        > $probdir/$probname.plan
+    grep "^[0-9]\+: ([^)]*) \[[0-9]*\]" log | cut -d " " -f 2- | sed -e "s/\[[0-9]\+\]//g" > plan
+    [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
 }
 
 ################################################################
+#### run
 
-trap "finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
-
-vcp $problem problem.pddl
-vcp $domain domain.pddl
-plan &> log &
-pid=$!
-
-if $VERBOSE
-then
-    tail -f --pid $pid log
-else
-    wait $pid
-fi
-
+. $SCRDIR/run.sh
