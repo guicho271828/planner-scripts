@@ -5,14 +5,13 @@
 #### default options
 
 bin=$SCRDIR/marvin
-options=""
 
 ################################################################
 #### main
 
 plan(){
     vecho $(whoami)@$(hostname)
-    $bin $options domain.pddl problem.pddl
+    $bin $OPTIONS domain.pddl problem.pddl
 }
 
 finalize (){

@@ -19,9 +19,7 @@
 ../limit.sh -t 1 -d -- marvin-clean  p03.pddl domain.pddl
 
 # debugging: test marvin -l option
-../limit.sh -t 1 -d -- marvin-clean -o "-l" p03.pddl domain.pddl
-
-
+../limit.sh -t 1 -d -o "-l" -- marvin-clean p03.pddl domain.pddl
 
 # what happens when there are no solution?
 ../limit.sh -t 1 -v -- marvin-clean unsolvable.pddl domain.pddl

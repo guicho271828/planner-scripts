@@ -5,16 +5,6 @@
 ################################################################
 #### option processing
 
-while getopts ":o:" opt
-do
-    case ${opt} in
-        o)  # specifies the search option
-            options=${OPTARG:-$options} ;;
-        \?) OPT_ERROR=1; break;;
-        * ) echo "unsupported option $opt" ;;
-    esac
-done
-
 shift $(($OPTIND - 1))
 
 if [[ ( $1 == "" ) || $OPT_ERROR ]]

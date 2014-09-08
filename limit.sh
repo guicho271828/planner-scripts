@@ -10,6 +10,7 @@
 
 export SCRDIR=$(dirname $(readlink -ef $0))
 . $SCRDIR/util.sh
+export OPTIONS
 export DIR=$PWD
 export VERBOSE=false
 export DEBUG=false
@@ -20,9 +21,11 @@ cgmem=$cg/memory/$ccgname
 mem=-1
 time=-1
 
-while getopts ":-vdt:m:" opt
+while getopts ":-vdo:t:m:" opt
 do
     case ${opt} in
+        o)  # specifies the search option
+            OPTIONS=${OPTARG:-$OPTIONS} ;;
         v)  # increase verbosity: tail -f search.log during the search
             VERBOSE=true ;; # true
         d)  # do not remove the temporary directory for debugging
@@ -80,6 +83,7 @@ export STAT=$(readlink -ef $TMP/stat)
 
 vecho $TMP
 command=$(readlink -ef "$SCRDIR/$1") ; shift ;
+vecho "current planner options : $OPTIONS"
 vechodo cgexec -g cpuacct,memory:$ccgname $command $@ &
 pid=$!
 

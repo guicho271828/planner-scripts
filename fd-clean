@@ -8,7 +8,7 @@ fd_dir=~/repos/downward
 translate=$fd_dir/src/translate/translate.py
 preprocess=$fd_dir/src/preprocess/preprocess # < output.sas
 search=$fd_dir/src/search/downward
-options="ipc seq-sat-lama-2011"
+OPTIONS=${OPTIONS:-"ipc seq-sat-lama-2011"}
 
 ################################################################
 #### main
@@ -33,7 +33,7 @@ plan(){
         exit 1
     fi
 
-    if time $search $options < output &> log
+    if time $search $OPTIONS < output &> log
     then
         vecho Search Finished
     else

@@ -5,14 +5,13 @@
 #### default options
 
 bin=$SCRDIR/macroff
-options=""
 
 ################################################################
 #### main
 
 plan(){
     vecho $(whoami)@$(hostname)
-    vechodo $bin $(if $VERBOSE ; then echo "-i 3" ; fi) $options \
+    vechodo $bin $(if $VERBOSE ; then echo "-i 3" ; fi) $OPTIONS \
         -f problem.pddl -o domain.pddl
 }
 
