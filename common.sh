@@ -15,8 +15,6 @@ do
     esac
 done
 
-vecho "$0 $@"
-
 shift $(($OPTIND - 1))
 
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
@@ -52,9 +50,9 @@ fi
 #### common finalization hook (further call finalize)
 
 _finalize (){
-    vechodo $SCRDIR/killall.sh $pid -15
-    vcp $STAT $probdir/$probname.stat
-    vcp log $probdir/$probname.log
+    $SCRDIR/killall.sh $pid -15
+    cp $STAT $probdir/$probname.stat
+    cp log $probdir/$probname.log
     negatively-proven && touch $probdir/$probname.negative
     finalize
 }
@@ -63,16 +61,16 @@ _finalize (){
 #### run
 
 trap "_finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
-vechodo pushd $TMP > /dev/null
+pushd $TMP > /dev/null
 
-vcp $problem problem.pddl
-vcp $domain domain.pddl
-vechodo plan &> log &
+cp $problem problem.pddl
+cp $domain domain.pddl
+plan &> log &
 pid=$!
 
 if $VERBOSE
 then
-    vechodo tail -f --pid $pid log
+    tail -f --pid $pid log
 else
     wait $pid
 fi

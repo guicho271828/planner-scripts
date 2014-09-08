@@ -69,11 +69,11 @@ finalize (){
     $DEBUG && echo Debug flag is on, $TMP not removed!
 }
 trap "finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
-vechodo mkdir -p $cgcpu
-vechodo mkdir -p $cgmem
+mkdir -p $cgcpu
+mkdir -p $cgmem
 echo 0 > $cgmem/memory.swappiness
 
-vechodo mkdir -p /tmp/newtmp
+mkdir -p /tmp/newtmp
 export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
 
 record-stat
