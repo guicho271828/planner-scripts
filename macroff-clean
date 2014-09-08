@@ -4,142 +4,27 @@
 ################################################################
 #### default options
 
-MACROFF=$(dirname $0)/macroff
-TIME_LIMIT=1800
-MEMORY_USAGE=2000000 # KB
-OPTIONS=""
-PREFIX=""
-export VERBOSE=false
-export DEBUG=false
-
-################################################################
-#### functions
-
-. $(dirname $(readlink -ef $0))/util.sh
-
-################################################################
-#### option processing
-
-while getopts ":vdt:T:m:o:p:" opt
-do
-    case ${opt} in
-        v)  # increase verbosity: tail -f search.log during the search
-            VERBOSE=true ;; # true
-        d)  # do not remove the temporary directory for debugging
-            # assume -v
-            DEBUG=true ;
-            VERBOSE=true ;;
-        t) 
-            TIME_LIMIT=${OPTARG:-$TIME_LIMIT} ;;
-        T) 
-            echo "-T option has the same meaning in macroff-clean" >&2
-            TIME_LIMIT=${OPTARG:-$TIME_LIMIT} ;;
-        m)  # 
-            MEMORY_USAGE=${OPTARG:-$MEMORY_USAGE} ;;
-        o)  # specifies the search option
-            OPTIONS=${OPTARG:-$OPTIONS} ;;
-        p)  PREFIX=${OPTARG:-$PREFIX} ;;
-        \?) OPT_ERROR=1; break;;
-        * ) echo "unsupported option $opt" ;;
-    esac
-done
-
-vecho "$0 $@"
-
-if [[ $PREFIX == "" ]]
-then
-    plan_suffix=plan
-    log_suffix=search.log
-else
-    plan_suffix=$PREFIX.plan
-    log_suffix=$PREFIX.search.log
-fi
-
-shift $(($OPTIND - 1))
-
-if [[ ( $1 == "" ) || $OPT_ERROR ]]
-then
-    cat >&2 <<EOF
-usage: ./test-problem
-       [-v]
-       [-t TIME_LIMIT]     -- time limit
-       [-m MEMORY_LIMIT]   -- limit on the memory usage, in kb.
-       [-o OPTIONS]        -- search options
-       [-p PREFIX]         -- output file prefix
-       problemfile [domainfile]
-EOF
-    exit 2
-fi
-
-################################################################
-#### argument processing
-
-problem=$(readlink -ef $1)
-probdir=$(dirname $problem)
-
-if [[ $2 != "" ]]
-then
-    domain=$(readlink -ef $2)
-else
-    domain=$probdir/domain.pddl
-fi
-if [[ ! -e $domain ]]
-then
-    echo "no domain file $domain!" >&2
-    exit 1
-fi
+bin=$SCRDIR/macroff
+options=""
 
 ################################################################
 #### main
 
-tmp=$(mktemp -d --tmpdir==/tmp/newtmp macroff.XXXXXXX )
-vecho $tmp
-
 plan(){
     vecho $(whoami)@$(hostname)
-    vecho "ulimit -v $MEMORY_USAGE -t $TIME_LIMIT"
-    ulimit -v $MEMORY_USAGE -t $TIME_LIMIT
-    /usr/bin/time -f "real %e\nuser %U\nsys %S\nmaxmem %M" $MACROFF \
-        $(if $VERBOSE ; then echo "-i 3" ; fi) \
-        $OPTIONS \
-        -b edomain.pddl \
-        -r macros \
-        -f problem.pddl \
-        -o domain.pddl
+    $bin $(if $VERBOSE ; then echo "-i 3" ; fi) $options \
+        -f problem.pddl -o domain.pddl
 }
 
 finalize (){
-    $(dirname $0)/killall.sh $pid -15
-
     if [[ -e problem.pddl.soln ]]
     then
-        cat problem.pddl.soln | grep -v "^Time" > ${problem%pddl}$plan_suffix
+        cat problem.pddl.soln | grep -v "^Time" > $probdir/$probname.plan
     else
         vecho "No plan found!"
     fi
-
-    vcp log ${problem%pddl}$log_suffix
-    $DEBUG || rm -rf $tmp
 }
 
 ################################################################
 
-trap "finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
-
-# cleanup
-vrm -f ${problem%pddl}$log_suffix ${problem%pddl}$plan_suffix
-
-pushd $tmp > /dev/null
-vcp $problem problem.pddl
-vcp $domain domain.pddl
-echo hi! >> log
-plan &>> log &
-pid=$!
-
-if $VERBOSE
-then
-    tail -f --pid $pid log
-else
-    wait $pid
-fi
-
+. $SCRDIR/common.sh
