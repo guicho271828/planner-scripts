@@ -53,8 +53,12 @@ _finalize (){
     finalize
     vecho $'\x1b[34;1m'--------------------------------------------------------
     vecho Result:
-    ( report-results 2> /dev/null ) || vecho "Search Failed: No path was found in the current configuration."
+    report-results 2> /dev/null
+    local status=$?
+    [[ $status == 0 ]] || \
+        vecho "Search Failed: No path was found in the current configuration."
     vecho --------------------------------------------------------$'\x1b[0m'
+    exit $status
 }
 
 ################################################################

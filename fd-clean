@@ -17,7 +17,7 @@ plan(){
     vecho $(whoami)@$(hostname)
     sas=$probdir/$probname.sas
     sas_plus=$probdir/$probname.sasp
-    if time $translate domain.pddl problem.pddl
+    if time $translate domain.pddl problem.pddl > /dev/null
     then
         vecho Translation Finished
     else
@@ -25,7 +25,7 @@ plan(){
         exit 1
     fi
 
-    if time $preprocess < output.sas
+    if time $preprocess < output.sas > /dev/null
     then
         vecho Preprocess Finished
     else
@@ -70,9 +70,9 @@ negatively-proven (){
 
 report-results (){
     plans=$(ls $probdir/$probname.plan* 2> /dev/null)
-    local status=$?
     $VERBOSE && cat $probdir/$probname.cost
-    return $status
+    [[ $plans != "" ]]
+    return $?
 }
 
 ################################################################
