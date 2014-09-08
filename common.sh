@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. $SCRDIR/util.sh
+
 ################################################################
 #### option processing
 
@@ -44,5 +46,32 @@ if [[ ! -e $domain ]]
 then
     echo "no domain file $domain!" >&2
     exit 1
+fi
+
+################################################################
+#### common finalization hook (further call finalize)
+
+_finalize (){
+    $SCRDIR/killall.sh $pid -15
+    vcp $STAT $probdir/$probname.stat
+    vcp log $probdir/$probname.log
+    finalize
+}
+
+################################################################
+#### run
+
+trap "_finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
+
+vcp $problem problem.pddl
+vcp $domain domain.pddl
+plan &> log &
+pid=$!
+
+if $VERBOSE
+then
+    tail -f --pid $pid log
+else
+    wait $pid
 fi
 

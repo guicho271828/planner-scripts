@@ -6,8 +6,6 @@
 
 bin=$SCRDIR/marvin
 options=""
-. $SCRDIR/util.sh
-. $SCRDIR/common.sh
 
 ################################################################
 #### main
@@ -18,9 +16,6 @@ plan(){
 }
 
 finalize (){
-    $SCRDIR/killall.sh $pid -15
-    vcp $STAT $probdir/$probname.stat
-    vcp log $probdir/$probname.log
     # ++++++
     # Goal predicates not in initial fact layer
     # Number of actions found = 90
@@ -46,7 +41,4 @@ finalize (){
     [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
 }
 
-################################################################
-#### run
-
-. $SCRDIR/run.sh
+. $SCRDIR/common.sh
