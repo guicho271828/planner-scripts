@@ -26,3 +26,14 @@ vcp (){
 }
 
 export -f vecho vrm vmv vcp v
+
+sleep=3
+mykill (){
+    kill -s SIGXCPU $1
+    kill -s SIGTERM $1
+    sleep $sleep
+    ps $1 &> /dev/null && {
+        kill -s SIGKILL $1
+    }
+}
+export -f mykill

@@ -4,30 +4,17 @@
 ################################################################
 #### default options
 
-dir=$(dirname $(readlink -ef $0))
-bin=$dir/marvin
+bin=$SCRDIR/marvin
 options=""
 prefix=""
-export VERBOSE=false
-export DEBUG=false
-
-################################################################
-#### functions
-
-. $dir/util.sh
+. $SCRDIR/util.sh
 
 ################################################################
 #### option processing
 
-while getopts ":vdt:T:m:o:p:" opt
+while getopts ":o:" opt
 do
     case ${opt} in
-        v)  # increase verbosity: tail -f search.log during the search
-            VERBOSE=true ;; # true
-        d)  # do not remove the temporary directory for debugging
-            # assume -v
-            DEBUG=true ;
-            VERBOSE=true ;;
         o)  # specifies the search option
             options=${OPTARG:-$options} ;;
         \?) OPT_ERROR=1; break;;
@@ -43,7 +30,6 @@ if [[ ( $1 == "" ) || $OPT_ERROR ]]
 then
     cat >&2 <<EOF
 usage: ./test-problem
-       [-v] [-d]
        [-o OPTIONS]        -- search options
        problemfile [domainfile=domain.pddl]
 EOF
@@ -53,12 +39,13 @@ fi
 ################################################################
 #### argument processing
 
-problem=$(readlink -ef $1)
+problem=$(readlink -ef $DIR/$1)
+probname=$(basename $problem .pddl)
 probdir=$(dirname $problem)
 
 if [[ $2 != "" ]]
 then
-    domain=$(readlink -ef $2)
+    domain=$(cd $DIR; readlink -ef $2)
 else
     domain=$probdir/domain.pddl
 fi
@@ -71,37 +58,27 @@ fi
 ################################################################
 #### main
 
-mkdir -p /tmp/newtmp
-tmp=$(mktemp -d --tmpdir=/tmp/newtmp $(basename $bin).XXXXXXXXXX )
-vecho $tmp
-
 plan(){
     vecho $(whoami)@$(hostname)
     $bin $options domain.pddl problem.pddl
 }
 
 finalize (){
-    $dir/killall.sh $pid -15
-
+    $SCRDIR/killall.sh $pid -15
+    vcp $STAT $probdir/$probname.stat
+    vcp log $probname.log
     # if [[ -e problem.pddl.soln ]]
     # then
     #     cat problem.pddl.soln | grep -v "^Time" > ${problem%pddl}plan
     # else
     #     vecho "No plan found!"
     # fi
-
-    vcp log ${problem%pddl}log
-    $DEBUG || rm -rf $tmp
 }
 
 ################################################################
 
 trap "finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
 
-# cleanup
-vrm -f ${problem%pddl}log ${problem%pddl}plan
-
-pushd $tmp > /dev/null
 vcp $problem problem.pddl
 vcp $domain domain.pddl
 plan &>> log &
