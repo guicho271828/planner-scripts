@@ -25,6 +25,10 @@ finalize (){
     fi
 }
 
+negatively-proven (){
+    grep "problem proven unsolvable" log
+}
+
 ################################################################
 
 . $SCRDIR/common.sh

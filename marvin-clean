@@ -41,4 +41,8 @@ finalize (){
     [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
 }
 
+negatively-proven (){
+    grep "Could not find plan by exhaustive search" log
+}
+
 . $SCRDIR/common.sh

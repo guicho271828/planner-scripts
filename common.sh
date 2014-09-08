@@ -55,6 +55,7 @@ _finalize (){
     $SCRDIR/killall.sh $pid -15
     vcp $STAT $probdir/$probname.stat
     vcp log $probdir/$probname.log
+    negatively-proven && touch $probdir/$probname.negative
     finalize
 }
 
