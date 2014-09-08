@@ -33,13 +33,16 @@ plan(){
         exit 1
     fi
 
-    if time $search $OPTIONS < output
-    then
-        vecho Search Finished
-    else
-        vecho Search Terminated
-        exit 1
-    fi
+    time $search $OPTIONS < output &
+    spid=$!
+    while :
+    do
+        ( ls *plan* &> /dev/null ) && break
+        ( ps $spid &> /dev/null ) || break
+        sleep 0.5
+    done
+    $SCRDIR/killall.sh $spid -9
+    vecho Search Finished
 }
 
 finalize (){
