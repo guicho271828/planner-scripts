@@ -65,12 +65,16 @@ maxmem $memusage
 EOF
 }
 
+interrupt (){
+    mykill $pid
+}
 finalize (){
     rmdir $cgcpu $cgmem
     $DEBUG || rm -rf $TMP
     $DEBUG && echo Debug flag is on, $TMP not removed!
 }
-trap "finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
+trap "interrupt" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
+trap "finalize" EXIT
 mkdir -p $cgcpu
 mkdir -p $cgmem
 echo 0 > $cgmem/memory.swappiness

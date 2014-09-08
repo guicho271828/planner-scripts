@@ -17,7 +17,7 @@ plan(){
     vecho $(whoami)@$(hostname)
     sas=$probdir/$probname.sas
     sas_plus=$probdir/$probname.sasp
-    if time $translate domain.pddl problem.pddl &> log
+    if time $translate domain.pddl problem.pddl
     then
         vecho Translation Finished
     else
@@ -25,7 +25,7 @@ plan(){
         exit 1
     fi
 
-    if time $preprocess < output.sas &> log
+    if time $preprocess < output.sas
     then
         vecho Preprocess Finished
     else
@@ -33,7 +33,7 @@ plan(){
         exit 1
     fi
 
-    if time $search $OPTIONS < output &> log
+    if time $search $OPTIONS < output
     then
         vecho Search Finished
     else
@@ -62,7 +62,7 @@ finalize (){
 }
 
 negatively-proven (){
-    grep "Completely explored state space" log
+    grep "Completely explored state space" log &> /dev/null
 }
 
 report-results (){
