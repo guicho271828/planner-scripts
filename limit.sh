@@ -46,6 +46,8 @@ usage: ./limit.sh
        [-v] [-d]
        [-t time (sec)]
        [-m memory (kB)] [--] command args...
+ examples:
+  limit.sh -v -t 100 -- macroff-clean problem.pddl domain.pddl
 EOF
     exit 2
 fi
@@ -80,7 +82,7 @@ pushd $tmp > /dev/null
 record-stat
 export STAT=$(readlink -ef stat)
 
-command=$(readlink -ef $DIR/$1) ; shift ;
+command=$(readlink -ef $SCRDIR/$1) ; shift ;
 cgexec -g cpuacct,memory:$ccgname $command $@ &
 pid=$!
 
