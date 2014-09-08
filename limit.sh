@@ -64,6 +64,7 @@ finalize (){
     rmdir $cgcpu
     rmdir $cgmem
     $DEBUG || rm -rf $tmp
+    $DEBUG && echo Debug flag is on, $tmp not removed!
 }
 trap "finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
 mkdir -p $cgcpu
