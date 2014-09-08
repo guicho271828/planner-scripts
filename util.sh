@@ -1,5 +1,10 @@
 #!/bin/bash
 
+vechodo (){
+    vecho $*
+    $*
+}
+
 vecho (){
     $VERBOSE && echo $@
 }

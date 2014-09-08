@@ -12,7 +12,7 @@ options=""
 
 plan(){
     vecho $(whoami)@$(hostname)
-    $bin $(if $VERBOSE ; then echo "-i 3" ; fi) $options \
+    vechodo $bin $(if $VERBOSE ; then echo "-i 3" ; fi) $options \
         -f problem.pddl -o domain.pddl
 }
 

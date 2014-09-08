@@ -32,13 +32,13 @@ fi
 ################################################################
 #### argument processing
 
-problem=$(readlink -ef $DIR/$1)
+problem=$(readlink -ef $1)
 probname=$(basename $problem .pddl)
 probdir=$(dirname $problem)
 
 if [[ $2 != "" ]]
 then
-    domain=$(cd $DIR; readlink -ef $2)
+    domain=$(readlink -ef $2)
 else
     domain=$probdir/domain.pddl
 fi
@@ -52,7 +52,7 @@ fi
 #### common finalization hook (further call finalize)
 
 _finalize (){
-    $SCRDIR/killall.sh $pid -15
+    vechodo $SCRDIR/killall.sh $pid -15
     vcp $STAT $probdir/$probname.stat
     vcp log $probdir/$probname.log
     negatively-proven && touch $probdir/$probname.negative
@@ -63,15 +63,16 @@ _finalize (){
 #### run
 
 trap "_finalize" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ EXIT
+vechodo pushd $TMP > /dev/null
 
 vcp $problem problem.pddl
 vcp $domain domain.pddl
-plan &> log &
+vechodo plan &> log &
 pid=$!
 
 if $VERBOSE
 then
-    tail -f --pid $pid log
+    vechodo tail -f --pid $pid log
 else
     wait $pid
 fi
