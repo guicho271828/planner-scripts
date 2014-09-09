@@ -36,12 +36,12 @@ sleep=3
 mykill (){
     ps $1 &> /dev/null && {
         pstree -p -H $1 $1
-        vechodo $SCRDIR/killall.sh $1 SIGXCPU
-        vechodo $SCRDIR/killall.sh $1 SIGTERM
+        vechodo $SCRDIR/killall.sh $1 -SIGXCPU
+        vechodo $SCRDIR/killall.sh $1 -SIGTERM
         vechodo sleep $sleep
         vecho sleep end
         ps $1 &> /dev/null && {
-            vechodo $SCRDIR/killall.sh $1 -9
+            vechodo $SCRDIR/killall.sh $1 -SIGKILL
         }
     }
 }
