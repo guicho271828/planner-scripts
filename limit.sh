@@ -14,10 +14,11 @@ export OPTIONS
 export DIR=$PWD
 export VERBOSE=false
 export DEBUG=false
-ccgname=${cgname:=$(whoami)}/$$            # child cgname
+pcgname=${cgname:-$(whoami)}
+cgname=$cgname/$$            # child cgname
 cg=/sys/fs/cgroup
-cgcpu=$cg/cpuacct/$ccgname
-cgmem=$cg/memory/$ccgname
+cgcpu=$cg/cpuacct/$cgname
+cgmem=$cg/memory/$cgname
 mem=-1
 time=-1
 
@@ -78,6 +79,7 @@ trap "finalize" EXIT
 mkdir -p $cgcpu
 mkdir -p $cgmem
 echo 0 > $cgmem/memory.swappiness
+echo 1 > $cgmem/memory.use_hierarchy
 
 mkdir -p /tmp/newtmp
 export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
@@ -88,7 +90,7 @@ export STAT=$(readlink -ef $TMP/stat)
 vecho $TMP
 command=$(readlink -ef "$SCRDIR/$1") ; shift ;
 vecho "current planner options : $OPTIONS"
-vechodo cgexec -g cpuacct,memory:$ccgname $command $@ &
+vechodo cgexec -g cpuacct,memory:$cgname $command $@ &
 pid=$!
 
 while ps $pid &> /dev/null
