@@ -80,6 +80,8 @@ mkdir -p $cgcpu
 mkdir -p $cgmem
 echo 0 > $cgmem/memory.swappiness
 echo 1 > $cgmem/memory.use_hierarchy
+echo $(($mem * 1024)) > $cgmem/memory.limit_in_bytes
+echo $(($mem * 1024)) > $cgmem/memory.memsw.limit_in_bytes
 
 mkdir -p /tmp/newtmp
 export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
