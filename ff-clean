@@ -4,7 +4,7 @@
 ################################################################
 #### default options
 
-bin=$SCRDIR/macroff
+bin=$SCRDIR/ff
 
 ################################################################
 #### main
@@ -16,16 +16,13 @@ plan(){
 }
 
 finalize (){
-    if [[ -e problem.pddl.soln ]]
-    then
-        cat problem.pddl.soln | grep -v "^Time" > $probdir/$probname.plan
-    else
-        vecho "No plan found!"
-    fi
+    grep "^\(step\)\?\s*[0-9]\+: \(.*\)" log | cut -d: -f 2 | sed -e "s/^ \(.*\)/(\1)/g" > plan
+    [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
 }
 
 negatively-proven (){
-    grep "problem proven unsolvable" log
+    grep "problem proven unsolvable" log || \
+        grep "No plan will solve it" log
 }
 
 report-results (){

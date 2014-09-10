@@ -15,7 +15,7 @@ export DIR=$PWD
 export VERBOSE=false
 export DEBUG=false
 pcgname=${cgname:-$(whoami)}
-cgname=$cgname/$$            # child cgname
+cgname=$pcgname/$$            # child cgname
 cg=/sys/fs/cgroup
 cgcpu=$cg/cpuacct/$cgname
 cgmem=$cg/memory/$cgname
@@ -34,14 +34,18 @@ do
             DEBUG=true ;
             VERBOSE=true ;;
         t)  # hard limit of the execution time, in sec.
-            time=${OPTARG};;
+            time=${OPTARG:-$time} ;
+            [[ $time == 'unlimited' ]] && time=-1 ;;
         m)  # limit on the memory usage, in kB.
-            mem=${OPTARG};;
+            mem=${OPTARG:-$mem};
+            [[ $mem == 'unlimited' ]] && mem=-1 ;;
         -)  break ;;
         \?) OPT_ERROR=1; break;;
         * ) echo "unsupported option $opt" ;;
     esac
 done
+
+echo mem:$(($mem/1000))MB, time:${time}sec, cgname:$cgname
 
 shift $(( $OPTIND - 1 ))
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
@@ -76,18 +80,21 @@ interrupt (){
     mykill $pid
 }
 finalize (){
-    rmdir $cgcpu $cgmem
+    rmdir -v $cgcpu $cgmem
     $DEBUG || rm -rf $TMP
     $DEBUG && echo Debug flag is on, $TMP not removed!
 }
 trap "interrupt" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
 trap "finalize" EXIT
-mkdir -p $cgcpu
-mkdir -p $cgmem
+mkdir -v $cgcpu
+mkdir -v $cgmem
 echo 0 > $cgmem/memory.swappiness
 echo 1 > $cgmem/memory.use_hierarchy
-echo $(($mem * 1024)) > $cgmem/memory.limit_in_bytes
-echo $(($mem * 1024)) > $cgmem/memory.memsw.limit_in_bytes
+if [[ $mem -gt 0 ]]
+then
+    echo $(($mem * 1024)) > $cgmem/memory.limit_in_bytes
+    echo $(($mem * 1024)) > $cgmem/memory.memsw.limit_in_bytes
+fi
 
 mkdir -p /tmp/newtmp
 export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
@@ -108,12 +115,12 @@ do
     if [[ $time -gt 0 && $cpuusage -gt ${time}000 ]]
     then
         echo "cpuacct.usage exceeding. $cpuusage msec." >&2
-        mykill $pid ; break
+        mykill $pid
     fi
     if [[ $mem -gt 0 && $memusage -gt $mem ]]
     then
         echo "memory.max_usage_in_bytes exceeding. $memusage kB." >&2
-        mykill $pid ; break
+        mykill $pid
     fi
 done
 
