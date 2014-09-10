@@ -15,7 +15,7 @@ export DIR=$PWD
 export VERBOSE=false
 export DEBUG=false
 pcgname=${cgname:-$(whoami)}
-cgname=$cgname/$$            # child cgname
+cgname=$pcgname/$$            # child cgname
 cg=/sys/fs/cgroup
 cgcpu=$cg/cpuacct/$cgname
 cgmem=$cg/memory/$cgname
@@ -70,14 +70,14 @@ interrupt (){
     mykill $pid
 }
 finalize (){
-    rmdir $cgcpu $cgmem
+    rmdir -v $cgcpu $cgmem
     $DEBUG || rm -rf $TMP
     $DEBUG && echo Debug flag is on, $TMP not removed!
 }
 trap "interrupt" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
 trap "finalize" EXIT
-mkdir -p $cgcpu
-mkdir -p $cgmem
+mkdir -v $cgcpu
+mkdir -v $cgmem
 echo 0 > $cgmem/memory.swappiness
 echo 1 > $cgmem/memory.use_hierarchy
 echo $(($mem * 1024)) > $cgmem/memory.limit_in_bytes
