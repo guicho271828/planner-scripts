@@ -34,16 +34,18 @@ do
             DEBUG=true ;
             VERBOSE=true ;;
         t)  # hard limit of the execution time, in sec.
-            time=${OPTARG:-$time};;
+            time=${OPTARG:-$time} ;
+            [[ $time == 'unlimited' ]] && time=-1 ;;
         m)  # limit on the memory usage, in kB.
-            mem=${OPTARG:-$mem};;
+            mem=${OPTARG:-$mem};
+            [[ $mem == 'unlimited' ]] && mem=-1 ;;
         -)  break ;;
         \?) OPT_ERROR=1; break;;
         * ) echo "unsupported option $opt" ;;
     esac
 done
 
-echo mem:$(($mem/1000000))MB, time:${time}sec, cgname:$cgname
+echo mem:$(($mem/1000))MB, time:${time}sec, cgname:$cgname
 
 shift $(( $OPTIND - 1 ))
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
@@ -82,8 +84,11 @@ mkdir -v $cgcpu
 mkdir -v $cgmem
 echo 0 > $cgmem/memory.swappiness
 echo 1 > $cgmem/memory.use_hierarchy
-echo $(($mem * 1024)) > $cgmem/memory.limit_in_bytes
-echo $(($mem * 1024)) > $cgmem/memory.memsw.limit_in_bytes
+if [[ $mem -gt 0 ]]
+then
+    echo $(($mem * 1024)) > $cgmem/memory.limit_in_bytes
+    echo $(($mem * 1024)) > $cgmem/memory.memsw.limit_in_bytes
+fi
 
 mkdir -p /tmp/newtmp
 export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
