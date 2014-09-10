@@ -30,8 +30,8 @@ negatively-proven (){
 
 report-results (){
     local cost=$(cat plan | wc -l)
-    [[ -e $plan && $cost -gt 0 ]] && echo "Plan cost: " $cost
-    [[ -e $plan && $cost -gt 0 ]]
+    [[ -e plan && $cost -gt 0 ]] && echo "Plan cost: " $cost
+    [[ -e plan && $cost -gt 0 ]]
 }
 
 ################################################################
