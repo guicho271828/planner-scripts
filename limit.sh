@@ -104,12 +104,12 @@ do
     if [[ $time -gt 0 && $cpuusage -gt ${time}000 ]]
     then
         echo "cpuacct.usage exceeding. $cpuusage msec." >&2
-        mykill $pid ; break
+        mykill $pid
     fi
     if [[ $mem -gt 0 && $memusage -gt $mem ]]
     then
         echo "memory.max_usage_in_bytes exceeding. $memusage kB." >&2
-        mykill $pid ; break
+        mykill $pid
     fi
 done
 
