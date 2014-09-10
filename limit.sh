@@ -34,14 +34,16 @@ do
             DEBUG=true ;
             VERBOSE=true ;;
         t)  # hard limit of the execution time, in sec.
-            time=${OPTARG};;
+            time=${OPTARG:-$time};;
         m)  # limit on the memory usage, in kB.
-            mem=${OPTARG};;
+            mem=${OPTARG:-$mem};;
         -)  break ;;
         \?) OPT_ERROR=1; break;;
         * ) echo "unsupported option $opt" ;;
     esac
 done
+
+echo mem:$(($mem/1000000))MB, time:${time}sec, cgname:$cgname
 
 shift $(( $OPTIND - 1 ))
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
