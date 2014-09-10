@@ -58,8 +58,14 @@ EOF
 fi
 
 record-stat (){
-    cpuusage=$(( $(< $cgcpu/cpuacct.usage) / 1000000 ))
-    memusage=$(( $(< $cgmem/memory.max_usage_in_bytes) / 1024 ))
+    until cpuusage=$(( $(< $cgcpu/cpuacct.usage) / 1000000 ))
+    do
+        sleep 0.2
+    done
+    until memusage=$(( $(< $cgmem/memory.max_usage_in_bytes) / 1024 ))
+    do
+        sleep 0.2
+    done
     cat > $TMP/stat <<EOF
 cputime $cpuusage
 maxmem $memusage
