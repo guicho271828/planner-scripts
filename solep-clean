@@ -4,21 +4,25 @@
 ################################################################
 #### default options
 
-bin=$SCRDIR/macroff
+
 
 ################################################################
 #### main
 
 plan(){
     vecho $(whoami)@$(hostname)
-    vechodo $bin $(if $VERBOSE ; then echo "-i 3" ; fi) $OPTIONS \
-        -f problem.pddl -o domain.pddl
+    cp $probdir/p01.pddl ./
+    cp $probdir/p02.pddl ./
+    cp $probdir/p03.pddl ./
+    vechodo $SCRDIR/sol-ep-base.sh domain.pddl problem.pddl p01.pddl p02.pddl p03.pddl
 }
 
 finalize (){
-    if [[ -e problem.pddl.soln ]]
+    pwd
+    if [[ -e pro.soln ]]
     then
-        cat problem.pddl.soln | grep -v "^Time" > $probdir/$probname.plan
+        cat pro.soln | grep -v "^Time" > plan
+        [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
     else
         vecho "No plan found!"
     fi
