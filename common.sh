@@ -32,6 +32,10 @@ else
 fi
 if [[ ! -e $domain ]]
 then
+    domain=$probdir/$probname-domain.pddl
+fi
+if [[ ! -e $domain ]]
+then
     echo "no domain file $domain!" >&2
     exit 1
 fi
