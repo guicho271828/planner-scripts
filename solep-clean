@@ -40,4 +40,4 @@ report-results (){
 
 ################################################################
 
-. $SCRDIR/common.sh
+. $SCRDIR/common-solep.sh
