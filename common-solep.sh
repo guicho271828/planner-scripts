@@ -73,9 +73,9 @@ trap "_finalize" EXIT
 pushd $TMP > /dev/null
 
 cp -t . \
-    $probdir/p01.pddl \
-    $probdir/p02.pddl \
-    $probdir/p03.pddl \
+    $probdir/t01.pddl \
+    $probdir/t02.pddl \
+    $probdir/t03.pddl \
     $problem $domain
 plan &> log &
 pid=$!

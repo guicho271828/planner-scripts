@@ -11,10 +11,8 @@
 
 plan(){
     vecho $(whoami)@$(hostname)
-    cp $probdir/p01.pddl ./
-    cp $probdir/p02.pddl ./
-    cp $probdir/p03.pddl ./
-    vechodo $SCRDIR/sol-ep-base.sh domain.pddl problem.pddl p01.pddl p02.pddl p03.pddl
+    cp -t . $probdir/t01.pddl $probdir/t02.pddl $probdir/t03.pddl
+    vechodo $SCRDIR/sol-ep-base.sh domain.pddl problem.pddl t01.pddl t02.pddl t03.pddl
 }
 
 finalize (){
