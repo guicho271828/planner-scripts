@@ -44,19 +44,19 @@ run() {
     else
         $FF -q $MACROS -p $DIR -o $PDDL -f $PFILE -M 1
     fi
-    echo -ne "$PDDL\t$PFILE\t" >> onemacrocollection.out
+    echo -ne "$PDDL\t$PFILE\t" >> macrocollection.out
     if test -f ffua.out; then
-        echo -ne "$PROBLEM\t" >> onemacrocollection.out
-        echo -ne "1\t" >> onemacrocollection.out
+        echo -ne "$PROBLEM\t" >> macrocollection.out
+        echo -ne "1\t" >> macrocollection.out
         if validate $DIR $PDDL $PFILE; then
-            echo -ne "0\t" >> onemacrocollection.out
+            echo -ne "0\t" >> macrocollection.out
         else
-            echo -ne "1\t" >> onemacrocollection.out
+            echo -ne "1\t" >> macrocollection.out
         fi
-        cat ffua.out >> onemacrocollection.out
+        cat ffua.out >> macrocollection.out
     else
-        #  echo -e "0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0" >> onemacrocollection.out
-        echo >> onemacrocollection.out
+        #  echo -e "0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0" >> macrocollection.out
+        echo >> macrocollection.out
     fi
 }
 
