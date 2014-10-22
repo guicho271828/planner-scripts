@@ -72,11 +72,11 @@ trap "_interrupt" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
 trap "_finalize" EXIT
 pushd $TMP > /dev/null
 
-cp -t . \
-    $probdir/t01.pddl \
-    $probdir/t02.pddl \
-    $probdir/t03.pddl \
-    $problem $domain
+cp -t . $probdir/t01.pddl
+cp -t . $probdir/t02.pddl
+cp -t . $probdir/t03.pddl
+cp $problem problem.pddl
+cp $domain domain.pddl
 plan &> log &
 pid=$!
 

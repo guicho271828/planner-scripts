@@ -144,6 +144,10 @@ train_one_domain() {
     done
     echo reorder macros
     $SCRDIR/extract.pl $appname.summary.txt $appname.collection.*
+    echo ***for-debugging***
+    echo "command to run: $SCRDIR/macroff -a $appname.summary.txt -q $appname.macros.filtered -m  R -p $path -o $domain -f ${problem[0]}"
+    echo "ls -la"
+    ls -la
     $SCRDIR/macroff -a $appname.summary.txt -q $appname.macros.filtered -m  R -p $path -o $domain -f ${problem[0]}
     echo "run with top k macros (iterate after k)"
     for ((i=1;i<=15;i++)) ; do
