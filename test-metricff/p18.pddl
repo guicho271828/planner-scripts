@@ -1,4 +1,5 @@
-(define (problem depotprob1916) (:domain Depot)
+(define (problem depotprob1916)
+    (:domain depot)
 (:objects
 	depot0 depot1 distributor0 distributor1 truck0 truck1 truck2 truck3 pallet0 pallet1 pallet2 pallet3 pallet4 pallet5 pallet6 pallet7 crate0 crate1 crate2 crate3 crate4 crate5 crate6 crate7 crate8 crate9 crate10 crate11 crate12 crate13 crate14 hoist0 hoist1 hoist2 hoist3 hoist4 hoist5 hoist6 hoist7 )
 (:init

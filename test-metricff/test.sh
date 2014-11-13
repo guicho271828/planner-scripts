@@ -21,3 +21,6 @@
 # what happens when there are no solution?
 ../limit.sh -t 1 -v -- mff-clean unsolvable.pddl domain.pddl
 
+# action-cost domain
+
+../limit.sh -t 1 -v -- mff-clean barman-problem.pddl barman-domain.pddl

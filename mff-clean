@@ -11,8 +11,12 @@ bin=$SCRDIR/mff-myself
 
 plan(){
     vecho $(whoami)@$(hostname)
-    vechodo $bin $(if $VERBOSE ; then echo "-i 3" ; fi) $OPTIONS \
-        -f problem.pddl -o domain.pddl
+    if grep "metric" problem.pddl
+    then
+        vechodo $bin $OPTIONS -f problem.pddl -o domain.pddl
+    else
+        vechodo $bin -s 0 $OPTIONS -f problem.pddl -o domain.pddl
+    fi
 }
 
 finalize (){
