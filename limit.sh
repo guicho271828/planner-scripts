@@ -35,7 +35,7 @@ do
             DEBUG=true ;
             VERBOSE=true ;;
         i)  # use iterated run if possible
-            ITERATED=true
+            ITERATED=true ;;
         t)  # hard limit of the execution time, in sec.
             time=${OPTARG:-$time} ;
             [[ $time == 'unlimited' ]] && time=-1 ;;
