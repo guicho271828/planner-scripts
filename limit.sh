@@ -21,8 +21,9 @@ cgcpu=$cg/cpuacct/$cgname
 cgmem=$cg/memory/$cgname
 mem=-1
 time=-1
+export ITERATED=false
 
-while getopts ":-vdo:t:m:" opt
+while getopts ":-vido:t:m:" opt
 do
     case ${opt} in
         o)  # specifies the search option
@@ -33,6 +34,8 @@ do
             # assume -v
             DEBUG=true ;
             VERBOSE=true ;;
+        i)  # use iterated run if possible
+            ITERATED=true
         t)  # hard limit of the execution time, in sec.
             time=${OPTARG:-$time} ;
             [[ $time == 'unlimited' ]] && time=-1 ;;

@@ -37,7 +37,10 @@ plan(){
     spid=$!
     while :
     do
-        ( ls *plan* &> /dev/null ) && break
+        if ! $ITERATED
+        then
+            ( ls *plan* &> /dev/null ) && break
+        fi
         ( ps $spid &> /dev/null ) || break
         sleep 0.5
     done
