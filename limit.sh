@@ -82,9 +82,9 @@ EOF
 interrupt (){
     target=$(pgrep -P $pid)
     echo "limit.sh($$): received $1, killing subprocess $target with $1"
+    vechodo kill -s $1 $target
     while ps -p $target &>/dev/null
     do
-        vechodo kill -s $1 $target
         sleep 0.5
         pstree -pl $pid
     done
