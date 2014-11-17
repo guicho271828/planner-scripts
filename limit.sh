@@ -80,14 +80,25 @@ EOF
 }
 
 interrupt (){
-    mykill $pid
+    target=$(pgrep -P $pid)
+    echo "limit.sh($$): received $1, killing subprocess $target with $1"
+    while ps -p $target &>/dev/null
+    do
+        vechodo kill -s $1 $target
+        sleep 0.5
+        pstree -pl $pid
+    done
+    echo "limit.sh($$): killed subprocess $target died"
 }
 finalize (){
     rmdir -v $cgcpu $cgmem
     $DEBUG || rm -rf $TMP
     $DEBUG && echo Debug flag is on, $TMP not removed!
 }
-trap "interrupt" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
+for sig in SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
+do
+    trap "interrupt $sig" $sig
+done 
 trap "finalize" EXIT
 mkdir -v $cgcpu
 mkdir -v $cgmem

@@ -46,15 +46,16 @@ fi
 # but not plan files: because they are planner specific
 
 _interrupt (){
-    echo "Interrupted!"
-    mykill $pid
+    echo "common.sh($$): received $1, exiting..."
     exit 1
 }
 _finalize (){
+    echo "common.sh($$): forcibly killing all subprocesses"
+    $SCRDIR/killall.sh $pid -9
     cp $STAT $probdir/$probname.stat
     cp log $probdir/$probname.log
     negatively-proven && touch $probdir/$probname.negative
-    finalize
+    finalize                    # call planner-specific finalizer
     vecho $'\x1b[34;1m'--------------------------------------------------------
     vecho Result:
     report-results 2> /dev/null
@@ -68,7 +69,11 @@ _finalize (){
 ################################################################
 #### run
 
-trap "_interrupt" SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
+for sig in SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
+do
+    trap "_interrupt $sig" $sig
+done
+
 trap "_finalize" EXIT
 pushd $TMP > /dev/null
 
@@ -80,8 +85,7 @@ pid=$!
 if $VERBOSE
 then
     touch log
-    tail -f --pid $pid log
-else
-    wait $pid
+    tail -f log &
 fi
 
+wait $pid

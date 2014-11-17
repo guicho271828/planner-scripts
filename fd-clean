@@ -49,7 +49,6 @@ plan(){
 }
 
 finalize (){
-    $SCRDIR/killall.sh $pid -9
     mv -f output.sas $sas 2> /dev/null
     for groups in $(ls *.groups 2> /dev/null)
     do
