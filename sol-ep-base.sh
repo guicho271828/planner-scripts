@@ -130,7 +130,7 @@ train_one_domain() {
     cp $appname.macros $appname.macros.filtered
     rm -f *soln
     echo generate one file for each macro
-    $SCRDIR/macroff -q $appname.macros.filtered -m  E -p $path -o $domain -f ${problem[0]}
+    $FF -q $appname.macros.filtered -m  E -p $path -o $domain -f ${problem[0]}
     for ((i=1;i<=15;i++)) ; do
         rm -f macrocollection.out
         macrofile="$appname.macros.filtered.$i"
@@ -144,11 +144,9 @@ train_one_domain() {
     done
     echo reorder macros
     $SCRDIR/extract.pl $appname.summary.txt $appname.collection.*
-    echo ***for-debugging***
-    echo "command to run: $SCRDIR/macroff -a $appname.summary.txt -q $appname.macros.filtered -m  R -p $path -o $domain -f ${problem[0]}"
-    echo "ls -la"
-    ls -la
-    $SCRDIR/macroff -a $appname.summary.txt -q $appname.macros.filtered -m  R -p $path -o $domain -f ${problem[0]}
+    echodo ls -la
+    echodo pwd
+    # echodo "$FF -a $appname.summary.txt -q $appname.macros.filtered -m  R -p $path -o $domain -f ${problem[0]}"
     echo "run with top k macros (iterate after k)"
     for ((i=1;i<=15;i++)) ; do
         rm -f macrocollection.out
@@ -185,6 +183,12 @@ solve (){
     local appname=$(basename $dir)
     run $appname.macros.best $dir/ $(basename $1) $(basename $2)
 }
+
+echodo (){
+    echo $*
+    $*
+}
+
 
 domain=$(readlink -ef $1)
 main_problem=$(readlink -ef $2)
