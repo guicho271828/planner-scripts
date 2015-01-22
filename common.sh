@@ -10,7 +10,7 @@ shift $(($OPTIND - 1))
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
 then
     cat >&2 <<EOF
-usage: ./$0
+Usage: ./$0
        [-o OPTIONS]        -- search options
        problemfile [domainfile=domain.pddl]
 EOF

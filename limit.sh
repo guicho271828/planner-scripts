@@ -14,11 +14,13 @@ export OPTIONS
 export DIR=$PWD
 export VERBOSE=false
 export DEBUG=false
-pcgname=${cgname:-$(whoami)}
-cgname=$pcgname/$$            # child cgname
+
 cg=/sys/fs/cgroup
-cgcpu=$cg/cpuacct/$cgname
-cgmem=$cg/memory/$cgname
+cpuacct=$(awk -F: '/cpuacct/{print $3}' /proc/self/cgroup)/$$
+memory=$(awk -F: '/memory/{print $3}' /proc/self/cgroup)/$$
+cgcpu=$cg/cpuacct$cpuacct
+cgmem=$cg/memory$memory
+
 mem=-1
 time=-1
 export ITERATED=false
@@ -48,7 +50,7 @@ do
     esac
 done
 
-echo mem:$(($mem/1000))MB, time:${time}sec, cgname:$cgname
+echo mem:$(($mem/1000))MB, time:${time}sec
 
 shift $(( $OPTIND - 1 ))
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
@@ -100,8 +102,8 @@ do
     trap "interrupt $sig" $sig
 done 
 trap "finalize" EXIT
-mkdir -v $cgcpu
-mkdir -v $cgmem
+mkdir -vp $cgcpu
+mkdir -vp $cgmem
 echo 0 > $cgmem/memory.swappiness
 echo 1 > $cgmem/memory.use_hierarchy
 if [[ $mem -gt 0 ]]
@@ -119,7 +121,7 @@ export STAT=$(readlink -ef $TMP/stat)
 vecho $TMP
 command=$(readlink -ef "$SCRDIR/$1") ; shift ;
 vecho "current planner options : $OPTIONS"
-vechodo cgexec -g cpuacct,memory:$cgname $command $@ &
+vechodo cgexec -g cpuacct:$cpuacct -g memory:$memory $command $@ &
 pid=$!
 
 while ps $pid &> /dev/null
