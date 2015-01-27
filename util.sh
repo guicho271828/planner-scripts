@@ -5,6 +5,11 @@ vechodo (){
     $*
 }
 
+echodo (){
+    echo $*
+    $*
+}
+
 vecho (){
     $VERBOSE && echo $@
 }

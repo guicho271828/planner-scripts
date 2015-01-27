@@ -1,0 +1,92 @@
+#!/bin/bash
+#-*- mode:sh -*-
+
+################################################################
+#### default options
+
+FD_DIR=${FD_DIR:-~/repos/downward}
+translate=$FD_DIR/src/translate/translate.py
+preprocess=$FD_DIR/src/preprocess/preprocess # < output.sas
+
+# in old version, downward
+if [[ -e $FD_DIR/src/search/downward ]] ; then
+    search=$FD_DIR/src/search/downward
+elif [[ -e $FD_DIR/src/search/downward-release ]] ; then
+    search=$FD_DIR/src/search/downward-release
+else
+    echo "Fast Downward binary not found!!"
+    exit -1
+fi
+
+OPTIONS=${OPTIONS:-"ipc seq-sat-lama-2011"}
+
+################################################################
+#### main
+
+plan(){
+    vecho $(whoami)@$(hostname)
+    sas=$probdir/$probname.sas
+    sas_plus=$probdir/$probname.sasp
+    if time $translate domain.pddl problem.pddl > /dev/null
+    then
+        vecho Translation Finished
+    else
+        vecho Translation Terminated
+        exit 1
+    fi
+
+    if time $preprocess < output.sas > /dev/null
+    then
+        vecho Preprocess Finished
+    else
+        vecho Preprocess Terminated
+        exit 1
+    fi
+
+    time $search $OPTIONS < output &
+    spid=$!
+    while :
+    do
+        if ! $ITERATED
+        then
+            ( ls *plan* &> /dev/null ) && break
+        fi
+        ( ps $spid &> /dev/null ) || break
+        sleep 0.5
+    done
+    $SCRDIR/killall.sh $spid -9
+    vecho Search Finished
+}
+
+finalize (){
+    mv -f output.sas $sas 2> /dev/null
+    for groups in $(ls *.groups 2> /dev/null)
+    do
+        mv -f $groups $probdir/$probname.$groups
+    done
+    mv -f output $sas_plus 2> /dev/null
+    mv -f elapsed.time $probdir/$probname.time 2> /dev/null
+    mv -f plan_numbers_and_cost $probdir/$probname.cost 2> /dev/null
+    for plan in $(ls sas_plan* 2> /dev/null)
+    do
+        if [[ $(cat $plan) != "" ]]
+        then
+            mv -f $plan $probdir/$probname.${plan##*_}
+        fi
+    done
+}
+
+negatively-proven (){
+    grep "Completely explored state space" log &> /dev/null
+}
+
+report-results (){
+    plans=$(ls $probdir/$probname.plan* 2> /dev/null)
+    $VERBOSE && cat $probdir/$probname.cost
+    [[ $plans != "" ]]
+    return $?
+}
+
+################################################################
+
+. $SCRDIR/common.sh
