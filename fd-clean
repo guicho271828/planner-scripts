@@ -7,7 +7,17 @@
 FD_DIR=${FD_DIR:-~/repos/downward}
 translate=$FD_DIR/src/translate/translate.py
 preprocess=$FD_DIR/src/preprocess/preprocess # < output.sas
-search=$FD_DIR/src/search/downward
+
+# in old version, downward
+if [[ -e $FD_DIR/src/search/downward ]] ; then
+    search=$FD_DIR/src/search/downward
+elif [[ -e $FD_DIR/src/search/downward-release ]] ; then
+    search=$FD_DIR/src/search/downward-release
+else
+    echo "Fast Downward binary not found!!"
+    exit -1
+fi
+
 OPTIONS=${OPTIONS:-"ipc seq-sat-lama-2011"}
 
 ################################################################
