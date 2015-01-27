@@ -4,10 +4,10 @@
 ################################################################
 #### default options
 
-fd_dir=~/repos/downward
-translate=$fd_dir/src/translate/translate.py
-preprocess=$fd_dir/src/preprocess/preprocess # < output.sas
-search=$fd_dir/src/search/downward
+FD_DIR=${FD_DIR:-~/repos/downward}
+translate=$FD_DIR/src/translate/translate.py
+preprocess=$FD_DIR/src/preprocess/preprocess # < output.sas
+search=$FD_DIR/src/search/downward
 OPTIONS=${OPTIONS:-"ipc seq-sat-lama-2011"}
 
 ################################################################
