@@ -30,6 +30,7 @@ plan(){
     pwd
     vechodo $bin -i problem.pddl -d domain.pddl -o plan $(if $VERBOSE ; then echo "-v" ; fi) $OPTIONS
     # plan is actually the template name
+    cat *.stats
 }
 
 finalize (){
