@@ -7,8 +7,11 @@
 ################################################################
 #### main
 
+FD_DIR=${FD_DIR:-~/repos/downward}
+
 plan(){
     echo $(whoami)@$(hostname)
+    OPTIONS=${OPTIONS:-"--alias seq-sat-lama-2011"}
     declare -a array=($OPTIONS)
     if [[ ${array[0]} == --alias ]]
     then
