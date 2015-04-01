@@ -1,8 +1,6 @@
 
 
 (in-package :pddl.planner-scripts.test)
-
-(def-suite :pddl.planner-scripts :in :pddl)
 (in-suite :pddl.planner-scripts)
 
 (defun ensure-deleted (path)

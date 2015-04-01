@@ -98,37 +98,41 @@
                               (hard-time-limit *hard-time-limit*))
   (declare (ignore time-limit))
   (let ((problem (pathname problem))
-        (domain (pathname domain)))
+        (domain (pathname domain))
+        (*print-case* :downcase))
     (fresh-line)
     (restart-case
-      (signal-handler-bind ((:int #'%signal)
-                            (:xcpu #'%signal)
-                            (:term #'%signal)
-                            (:usr1 #'%signal))
-        (let ((process
-               (sb-ext:run-program
-                *limitsh*
-                (let ((*print-case* :downcase))
+        (signal-handler-bind ((:int #'%signal)
+                              (:xcpu #'%signal)
+                              (:term #'%signal)
+                              (:usr1 #'%signal))
+          (break)
+          (eazy-process:with-process
+              (p (print
                   (mapcar #'princ-to-string
-                          `(-m ,(ulimit memory)
-                               -t ,(ulimit hard-time-limit)
-                               ,@(when iterated `(-i))
-                               ,@(when verbose `(-v))
-                               ,@(when options `(-o ,options))
-                               -- ,name ,problem ,domain)))
-                :wait nil :output stream :error error)))
-          (unwind-protect
-               (sb-ext:process-wait process)
-            (finalize-process process verbose))
+                          `(,*limitsh*
+                            -m ,(ulimit memory)
+                            -t ,(ulimit hard-time-limit)
+                            ,@(when iterated `(-i))
+                            ,@(when verbose `(-v))
+                            ,@(when options `(-o ,options))
+                            -- ,name ,problem ,domain)))
+                 `(:in
+                   (,(pathname (format nil "/proc/~a/fd/1" (eazy-process:getpid)))
+                     :direction :output :if-exists :append :if-does-not-exist :create)
+                   (,(pathname (format nil "/proc/~a/fd/2" (eazy-process:getpid)))
+                     :direction :output :if-exists :append :if-does-not-exist :create)))
+            (eazy-process:wait p))
           (invoke-restart
-           (find-restart 'finish))))
-
+           (find-restart 'finish)))
       (finish ()
         (format t "~&Running finalization")
         (find-plans-common domain problem verbose)))))
 
 ;;;; reading the results
-
+;; limit.sh writes to a specific output file, so read the result.
+;; the `stream' argument in test-problem merely provides a verbose
+;; printing, and the output result is not used in these result analysers.
 (defun common-memory (problem)
   (block nil
     (ignore-errors

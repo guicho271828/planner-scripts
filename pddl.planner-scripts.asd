@@ -18,7 +18,7 @@
   :version "0.1"
   :author "guicho"
   :license "LLGPL"
-  :depends-on (:pddl)
+  :depends-on (:pddl :eazy-process)
   :pathname "src/"
   :components ((:file :test-problem)
                (:file :validate))
