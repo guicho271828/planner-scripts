@@ -18,9 +18,11 @@
   :version "0.1"
   :author "guicho"
   :license "LLGPL"
-  :depends-on (:pddl-test :fiveam)
+  :depends-on (:pddl.test :fiveam)
   :pathname "t/"
-  :components ((:file :test-problem)
+  :serial t
+  :components ((:file :package)
+               (:file :test-problem)
                (:file :validate))
   :description "wrapper for calling external solvers")
 

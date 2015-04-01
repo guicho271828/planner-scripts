@@ -15,19 +15,25 @@
 
 (defvar *system*
   (pathname-as-directory 
-   (asdf:system-source-directory :pddl)))
+   (asdf:system-source-directory :pddl.planner-scripts)))
 
+(defparameter *limitsh*
+  (merge-pathnames "limit.sh" *system*))
+
+@export
 (defparameter *memory-limit*
   (rlimit +rlimit-address-space+))
 
+@export
 (defparameter *soft-time-limit*
   (rlimit +rlimit-cpu-time+))
 
+@export
 (defparameter *hard-time-limit*
   (rlimit +rlimit-cpu-time+))
 
 ;;;; helpers
-
+@export
 (define-condition plan-not-found (warning)
   ((problem-path :initarg :problem-path)
    (domain-path :initarg :domain-path))
@@ -54,6 +60,7 @@
     "defined for optima matcher"
     (pathnamep path)))
 
+@export
 (define-condition unix-signal ()
   ((signo :initarg :signo :reader signo)))
 
@@ -77,17 +84,14 @@
 
 ;;;; general planners
 
-(defparameter *limitsh*
-  (merge-pathnames "planner-scripts/limit.sh" *system*))
+(export 'finish)
 
-(defun test-problem-common (problem
-                            domain
+@export
+(defun test-problem-common (problem domain
                             &key
                               (stream *standard-output*)
                               (error *error-output*)
-                              options
-                              verbose
-                              iterated
+                              options verbose iterated
                               (name (error "no planner name given!"))
                               (memory *memory-limit*)
                               (time-limit *soft-time-limit*)
@@ -111,8 +115,7 @@
                                ,@(when iterated `(-i))
                                ,@(when verbose `(-v))
                                ,@(when options `(-o ,options))
-                               -- ,name
-                               ,problem ,domain)))
+                               -- ,name ,problem ,domain)))
                 :wait nil :output stream :error error)))
           (unwind-protect
                (sb-ext:process-wait process)
@@ -123,6 +126,8 @@
       (finish ()
         (format t "~&Running finalization")
         (find-plans-common domain problem verbose)))))
+
+;;;; reading the results
 
 (defun common-memory (problem)
   (block nil

@@ -20,7 +20,8 @@
   :license "LLGPL"
   :depends-on (:pddl)
   :pathname "src/"
-  :components ((:file :test-problem))
+  :components ((:file :test-problem)
+               (:file :validate))
   :description "wrapper for calling external solvers"
   :in-order-to ((test-op (load-op :pddl.planner-scripts.test))))
 
