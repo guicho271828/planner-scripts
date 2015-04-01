@@ -7,6 +7,7 @@
   (when (probe-file path)
     (delete-file path)))
 
+#+nil
 (test test-problem-fd
   (let ((*default-pathname-defaults*
          #.*compile-file-truename*))
