@@ -21,6 +21,8 @@ matrix:
     # free edition --- heap exhausted
     - env: LISP=allegro
     - env: LISP=abcl            # until lisp-namespace is updated
+    - env: LISP=sbcl32
+    - env: LISP=ccl32
     # - env: LISP=clisp
     # - env: LISP=clisp32
     - env: LISP=ecl
