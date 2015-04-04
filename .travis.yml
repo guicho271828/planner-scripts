@@ -36,6 +36,7 @@ install:
     fi
   - git clone --depth=1 https://github.com/guicho271828/guicho-utilities.git ~/lisp/guicho-utilities
   - git clone --depth=1 https://github.com/guicho271828/eazy-process.git ~/lisp/eazy-process -b develop
+  - git clone --depth=1 https://github.com/guicho271828/pddl.git ~/lisp/pddl -b develop
 
 # this bit is just testing that travis correctly sets up ASDF to find
 # systems placed somewhere within ~/lisp. You can remove this section
