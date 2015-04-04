@@ -106,15 +106,14 @@
                                              (:term #'%signal)
                                              (:usr1 #'%signal))
           (eazy-process:with-process
-              (p (print
-                  (mapcar #'princ-to-string
+              (p (mapcar #'princ-to-string
                           `(,*limitsh*
                             -m ,(ulimit memory)
                             -t ,(ulimit hard-time-limit)
                             ,@(when iterated `(-i))
                             ,@(when verbose `(-v))
                             ,@(when options `(-o ,options))
-                            -- ,name ,problem ,domain)))
+                            -- ,name ,problem ,domain))
                  `(:in
                    (,(pathname (format nil "/proc/~a/fd/1" (eazy-process:getpid)))
                      :direction :output :if-exists :append :if-does-not-exist :create)
@@ -149,7 +148,8 @@
             "awk '/cputime/{print $2; ok=1} END{if(!ok){print -1}}' ~a~a.stat || echo -1"
             (pathname-directory-pathname problem)
             (pathname-name problem))
-    :verbose *verbose*)))
+    :verbose *verbose*)
+   :junk-allowed t))
 
 (defun common-complete (problem)
   (probe-file
