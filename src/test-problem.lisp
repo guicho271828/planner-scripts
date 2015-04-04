@@ -32,6 +32,8 @@
 (defparameter *hard-time-limit*
   (rlimit +rlimit-cpu-time+))
 
+(defvar *verbose* nil)
+
 ;;;; helpers
 @export
 (define-condition plan-not-found (warning)
@@ -60,19 +62,15 @@
     "defined for optima matcher"
     (pathnamep path)))
 
-@export
-(define-condition unix-signal ()
-  ((signo :initarg :signo :reader signo)))
-
 (defun %signal (signo)
-  (format t "~&received ~A~%" (signal-name signo))
-  (signal 'unix-signal :signo signo)
+  (format t "~&received ~A~%" (trivial-signal:signal-name signo))
+  (signal 'trivial-signal:unix-signal :signo signo)
   (format t "~&Condition not handled, Exiting.")
   (error "~&Condition not handled, Exiting.")
   ;; (sb-ext:exit :code 1 :abort t)
   )
 
-(defun finalize-process (process verbose)
+(defun finalize-process (process)
   (format t "~&Sending signal 15 to the test-problem process...")
   (force-output)
   (sb-ext:process-kill process 15) ; SIGTERM
@@ -95,18 +93,18 @@
                               (name (error "no planner name given!"))
                               (memory *memory-limit*)
                               (time-limit *soft-time-limit*)
-                              (hard-time-limit *hard-time-limit*))
+                              (hard-time-limit *hard-time-limit*)
+                            &aux (*verbose* verbose))
   (declare (ignore time-limit))
   (let ((problem (pathname problem))
         (domain (pathname domain))
         (*print-case* :downcase))
     (fresh-line)
     (restart-case
-        (signal-handler-bind ((:int #'%signal)
-                              (:xcpu #'%signal)
-                              (:term #'%signal)
-                              (:usr1 #'%signal))
-          (break)
+        (trivial-signal:signal-handler-bind ((:int #'%signal)
+                                             (:xcpu #'%signal)
+                                             (:term #'%signal)
+                                             (:usr1 #'%signal))
           (eazy-process:with-process
               (p (print
                   (mapcar #'princ-to-string
@@ -127,56 +125,53 @@
            (find-restart 'finish)))
       (finish ()
         (format t "~&Running finalization")
-        (find-plans-common domain problem verbose)))))
+        (find-plans-common domain problem)))))
 
 ;;;; reading the results
 ;; limit.sh writes to a specific output file, so read the result.
 ;; the `stream' argument in test-problem merely provides a verbose
 ;; printing, and the output result is not used in these result analysers.
+
 (defun common-memory (problem)
-  (block nil
-    (ignore-errors
-      (parse-integer
-       (run `(pipe (grep "maxmem"
-                         ,(format nil "~a~a.stat"
-                                  (pathname-directory-pathname problem)
-                                  (pathname-name problem)))
-                   (cut -d " " -f 2))
-            :output :string
-            :on-error (lambda (c)
-                        (declare (ignore c))
-                        (return -1)))))))
+  (parse-integer
+   (eazy-process:shell-command
+    (format nil
+            "awk '/maxmem/{print $2; ok=1} END{if(!ok){print -1}}' ~a~a.stat || echo -1"
+            (pathname-directory-pathname problem)
+            (pathname-name problem))
+    :verbose *verbose*)
+   :junk-allowed t))
+
 (defun common-time (problem)
-  (block nil
-    (ignore-errors
-      (parse-integer
-       (run `(pipe (grep "cputime"
-                         ,(format nil "~a~a.stat"
-                                  (pathname-directory-pathname problem)
-                                  (pathname-name problem)))
-                   (cut -d " " -f 2))
-            :output :string
-            :on-error (lambda (c)
-                        (declare (ignore c))
-                        (return -1)))))))
+  (parse-integer
+   (eazy-process:shell-command
+    (format nil
+            "awk '/cputime/{print $2; ok=1} END{if(!ok){print -1}}' ~a~a.stat || echo -1"
+            (pathname-directory-pathname problem)
+            (pathname-name problem))
+    :verbose *verbose*)))
+
 (defun common-complete (problem)
   (probe-file
    (format nil "~a~a.negative"
            (pathname-directory-pathname problem)
            (pathname-name problem))))
 
-(defun common-plans (problem verbose)
-  (sort (block nil
-          (run `(pipe (find ,(pathname-directory-pathname problem)
-                            -maxdepth 1 -mindepth 1)
-                      (progn (grep (,(pathname-name problem) .plan))
-                             (true)))
-               :show verbose :output :lines))
+(defun common-plans (problem)
+  (sort (split " "
+               (eazy-process:shell-command
+                (format nil
+                        "ls ~a~a.plan*"
+                        (pathname-as-directory
+                         (pathname-directory-pathname problem))
+                        (pathname-name problem))
+                :verbose *verbose*))
         #'string>))
-(defun find-plans-common (domain problem verbose)
+
+(defun find-plans-common (domain problem)
   @ignorable domain
   (values
-   (common-plans problem verbose)
+   (common-plans problem)
    (common-time problem)
    (common-memory problem)
    (common-complete problem)))

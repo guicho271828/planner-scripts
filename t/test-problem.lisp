@@ -10,7 +10,7 @@
 #+nil
 (test test-problem-fd
   (let ((*default-pathname-defaults*
-         #.*compile-file-truename*))
+         (asdf:system-relative-pathname :pddl.planner-scripts "t/")))
     (multiple-value-bind (plan-path-list
                           search-time
                           search-memory
@@ -26,11 +26,11 @@
       (is (numberp (print search-memory)))
       (is-true complete?)
       (ensure-deleted (merge-pathnames "data/problem.negative"))
-      (mapcar #'delete-file plan-path-list))))
+      (mapcar #'ensure-deleted plan-path-list))))
 
 (test test-problem-ff
   (let ((*default-pathname-defaults*
-         #.*compile-file-truename*))
+         (asdf:system-relative-pathname :pddl.planner-scripts "t/")))
     (multiple-value-bind (plan-path-list
                           search-time
                           search-memory
@@ -45,11 +45,11 @@
       (is (numberp (print search-memory)))
       (is-false complete?)
       (ensure-deleted (merge-pathnames "data/problem.negative"))
-      (mapcar #'delete-file plan-path-list))))
+      (mapcar #'ensure-deleted plan-path-list))))
 
 (test test-problem-ff-noverbose
   (let ((*default-pathname-defaults*
-         #.*compile-file-truename*))
+         (asdf:system-relative-pathname :pddl.planner-scripts "t/")))
     (multiple-value-bind (plan-path-list
                           search-time
                           search-memory
@@ -63,11 +63,11 @@
       (is (numberp (print search-memory)))
       (is-false complete?)
       (ensure-deleted (merge-pathnames "data/problem.negative"))
-      (mapcar #'delete-file plan-path-list))))
+      (mapcar #'ensure-deleted plan-path-list))))
 
 (test test-problem-marvin2
   (let ((*default-pathname-defaults*
-         #.*compile-file-truename*))
+         (asdf:system-relative-pathname :pddl.planner-scripts "t/")))
     (multiple-value-bind (plan-path-list
                           search-time
                           search-memory
@@ -82,11 +82,11 @@
       (is (numberp (print search-memory)))
       (is-false complete?)
       (ensure-deleted (merge-pathnames "data/problem.negative"))
-      (mapcar #'delete-file plan-path-list))))
+      (mapcar #'ensure-deleted plan-path-list))))
 
 (test test-problem-marvin2-noverbose
   (let ((*default-pathname-defaults*
-         #.*compile-file-truename*))
+         (asdf:system-relative-pathname :pddl.planner-scripts "t/")))
     (multiple-value-bind (plan-path-list
                           search-time
                           search-memory
@@ -100,4 +100,4 @@
       (is (numberp (print search-memory)))
       (is-false complete?)
       (ensure-deleted (merge-pathnames "data/problem.negative"))
-      (mapcar #'delete-file plan-path-list))))
+      (mapcar #'ensure-deleted plan-path-list))))

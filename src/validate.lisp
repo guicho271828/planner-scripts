@@ -1,7 +1,20 @@
 (in-package :pddl)
 (cl-syntax:use-syntax :annot)
 
-(defvar *default-fd-dir* "~/repos/downward/")
+(defun search-fd ()
+  (labels ((rec (path)
+             (let ((downward (merge-pathnames "downward/" path)))
+               (if (probe-file downward)
+                   downward
+                   (let ((parent (truename (merge-pathnames "../" path))))
+                     (if (equal '(:absolute) (pathname-directory parent))
+                         (warn "Fast Downward was not found!")
+                         (rec parent)))))))
+    (rec
+     (asdf:system-source-directory 
+      :pddl.planner-scripts))))
+
+(defvar *default-fd-dir* (search-fd))
 
 @export
 (defun validate-plan (domain-pathname
@@ -10,21 +23,14 @@
                       &key
                         verbose
                         (stream *standard-output*))
-  (handler-return ((uiop/run-program:subprocess-error (constantly nil)))
-    (let ((string (with-output-to-string (string-stream)
-                    (let ((broadcast (if verbose
-                                         (make-broadcast-stream stream string-stream)
-                                         string-stream)))
-                      (run `(,(merge-pathnames #p"src/validate"
-                                               (or (sb-ext:posix-getenv "FD_DIR")
-                                                   *default-fd-dir*))
-                              ,@(when verbose '(-v))
-                              ,(merge-pathnames domain-pathname)
-                              ,(merge-pathnames problem-pathname)
-                              ,(merge-pathnames plan-pathname))
-                           :show verbose
-                           :output broadcast)))))
-      ;; NOTE: this implementation is required, because VAL returns 0 when
-      ;; the plan description is malformed.
-      ;; We only trust its result when it outputs "Plan valid".
-      (scan "Plan valid" string))))
+  (let ((str (eazy-process:shell-command
+              (format nil "~a/src/validate ~@[-v~] ~a ~a ~a"
+                      (pathname-as-file
+                       (or (sb-ext:posix-getenv "FD_DIR")
+                           *default-fd-dir*))
+                      verbose
+                      (merge-pathnames domain-pathname)
+                      (merge-pathnames problem-pathname)
+                      (merge-pathnames plan-pathname)))))
+    (when verbose (pprint str stream))
+    (scan "Plan valid" str)))
