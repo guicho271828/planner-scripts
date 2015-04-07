@@ -85,7 +85,7 @@ pid=$!
 if $VERBOSE
 then
     touch log
-    tail -f log &
+    tail -f log --pid=$pid &
 fi
 
 wait $pid
