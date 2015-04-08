@@ -50,7 +50,7 @@ _interrupt (){
     exit 1
 }
 _finalize (){
-    echo "common.sh($$): forcibly killing all subprocesses"
+    $VERBOSE && echo "common.sh($$): forcibly killing all subprocesses"
     $SCRDIR/killall.sh $pid -9
     cp $STAT $probdir/$probname.stat
     cp log $probdir/$probname.log

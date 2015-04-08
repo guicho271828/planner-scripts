@@ -100,31 +100,32 @@
         (domain (pathname domain))
         (*print-case* :downcase))
     (fresh-line)
-    (restart-case
-        (trivial-signal:signal-handler-bind ((:int #'%signal)
-                                             (:xcpu #'%signal)
-                                             (:term #'%signal)
-                                             (:usr1 #'%signal))
-          (eazy-process:with-process
-              (p (mapcar #'princ-to-string
-                          `(,*limitsh*
-                            -m ,(ulimit memory)
-                            -t ,(ulimit hard-time-limit)
-                            ,@(when iterated `(-i))
-                            ,@(when verbose `(-v))
-                            ,@(when options `(-o ,options))
-                            -- ,name ,problem ,domain))
-                 `(:in
-                   (,(pathname (format nil "/proc/~a/fd/1" (eazy-process:getpid)))
-                     :direction :output :if-exists :append :if-does-not-exist :create)
-                   (,(pathname (format nil "/proc/~a/fd/2" (eazy-process:getpid)))
-                     :direction :output :if-exists :append :if-does-not-exist :create)))
-            (eazy-process:wait p))
-          (invoke-restart
-           (find-restart 'finish)))
-      (finish ()
-        (format t "~&Running finalization")
-        (find-plans-common domain problem)))))
+    (handler-bind ((warning #'muffle-warning))
+      (restart-case
+          (trivial-signal:signal-handler-bind ((:int #'%signal)
+                                               (:xcpu #'%signal)
+                                               (:term #'%signal)
+                                               (:usr1 #'%signal))
+            (eazy-process:with-process
+                (p (mapcar #'princ-to-string
+                           `(,*limitsh*
+                             -m ,(ulimit memory)
+                             -t ,(ulimit hard-time-limit)
+                             ,@(when iterated `(-i))
+                             ,@(when verbose `(-v))
+                             ,@(when options `(-o ,options))
+                             -- ,name ,problem ,domain))
+                   `(:in
+                     (,(pathname (format nil "/proc/~a/fd/1" (eazy-process:getpid)))
+                       :direction :output :if-exists :append :if-does-not-exist :create)
+                     (,(pathname (format nil "/proc/~a/fd/2" (eazy-process:getpid)))
+                       :direction :output :if-exists :append :if-does-not-exist :create)))
+              (eazy-process:wait p))
+            (invoke-restart
+             (find-restart 'finish)))
+        (finish ()
+          (when *verbose* (format t "~&Running finalization"))
+          (find-plans-common domain problem))))))
 
 ;;;; reading the results
 ;; limit.sh writes to a specific output file, so read the result.
