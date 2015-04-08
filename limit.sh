@@ -50,7 +50,7 @@ do
     esac
 done
 
-echo mem:$(($mem/1000))MB, time:${time}sec
+$VERBOSE && echo mem:$(($mem/1000))MB, time:${time}sec
 
 shift $(( $OPTIND - 1 ))
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
@@ -93,8 +93,8 @@ interrupt (){
     echo "limit.sh($$): killed subprocess $target died"
 }
 finalize (){
-    rmdir -v $cgcpu $cgmem
-    $DEBUG || rm -rf $TMP
+    rmdir $($VERBOSE && echo -v) $cgcpu $cgmem
+    $DEBUG || rm $($VERBOSE && echo -v) -rf $TMP
     $DEBUG && echo Debug flag is on, $TMP not removed!
 }
 for sig in SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
@@ -102,8 +102,8 @@ do
     trap "interrupt $sig" $sig
 done 
 trap "finalize" EXIT
-mkdir -vp $cgcpu
-mkdir -vp $cgmem
+mkdir $($VERBOSE && echo -v) -p $cgcpu
+mkdir $($VERBOSE && echo -v) -p $cgmem
 echo 0 > $cgmem/memory.swappiness
 echo 1 > $cgmem/memory.use_hierarchy
 if [[ $mem -gt 0 ]]
@@ -112,7 +112,7 @@ then
     echo $(($mem * 1024)) > $cgmem/memory.memsw.limit_in_bytes
 fi
 
-mkdir -p /tmp/newtmp
+mkdir $($VERBOSE && echo -v) -p /tmp/newtmp
 export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
 
 record-stat
@@ -143,7 +143,7 @@ done
 wait $pid
 exitstatus=$?
 case $exitstatus in
-    0) echo The program successfully finished. ;;
+    0) $VERBOSE && echo The program successfully finished. ;;
     *) echo Error occured. status: $exitstatus ;;
 esac
 

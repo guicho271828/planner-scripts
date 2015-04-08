@@ -32,7 +32,7 @@ plan(){
 }
 
 finalize (){
-    echo .
+    :
 }
 
 negatively-proven (){
