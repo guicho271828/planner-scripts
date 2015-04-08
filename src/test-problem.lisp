@@ -158,7 +158,7 @@
            (pathname-name problem))))
 
 (defun common-plans (problem)
-  (sort (split " "
+  (sort (split "\\s+"
                (eazy-process:shell-command
                 (format nil
                         "ls ~a~a.plan*"
