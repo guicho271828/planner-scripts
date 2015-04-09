@@ -109,7 +109,8 @@ echo 1 > $cgmem/memory.use_hierarchy
 if [[ $mem -gt 0 ]]
 then
     echo $(($mem * 1024)) > $cgmem/memory.limit_in_bytes
-    echo $(($mem * 1024)) > $cgmem/memory.memsw.limit_in_bytes
+    # some kernels do not have memsw
+    bash -c "echo $(($mem * 1024)) > $cgmem/memory.memsw.limit_in_bytes" 2>/dev/null
 fi
 
 mkdir $($VERBOSE && echo -v) -p /tmp/newtmp
