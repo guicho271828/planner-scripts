@@ -7,7 +7,28 @@
 ################################################################
 #### main
 
-FD_DIR=${FD_DIR:-~/repos/downward}
+# echo $FD_DIR
+
+find-fd (){
+    # echo "finding fd installation from $1 ..."
+    if [[ -d $1/downward ]]
+    then
+        FD_DIR=$(readlink -ef $1/downward)
+    else
+        if [[ $1 == / ]]
+        then
+            exit 1
+        else
+            find-fd $(readlink -ef $1/..)
+        fi
+    fi
+}
+
+if [[ ! -e $FD_DIR/src/fast-downward.py ]]
+then
+    find-fd $(dirname $(readlink -ef $0))
+fi
+
 
 plan(){
     echo $(whoami)@$(hostname)
