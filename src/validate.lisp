@@ -23,14 +23,14 @@
                       &key
                         verbose
                         (stream *standard-output*))
-  (let ((str (eazy-process:shell-command
-              (format nil "~a/src/validate ~@[-v~] ~a ~a ~a"
-                      (pathname-as-file
-                       (or (sb-ext:posix-getenv "FD_DIR")
-                           *default-fd-dir*))
-                      verbose
-                      (merge-pathnames domain-pathname)
-                      (merge-pathnames problem-pathname)
-                      (merge-pathnames plan-pathname)))))
+  (let* ((command (format nil "~a/src/validate ~:[~;-v~] ~a ~a ~a"
+                          (pathname-as-file
+                           (or (sb-ext:posix-getenv "FD_DIR")
+                               *default-fd-dir*))
+                          verbose
+                          (merge-pathnames domain-pathname)
+                          (merge-pathnames problem-pathname)
+                          (merge-pathnames plan-pathname)))
+         (str (eazy-process:shell-command command :verbose verbose)))
     (when verbose (pprint str stream))
     (scan "Plan valid" str)))
