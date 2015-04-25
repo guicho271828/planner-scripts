@@ -70,15 +70,18 @@
   ;; (sb-ext:exit :code 1 :abort t)
   )
 
-(defun finalize-process (process)
-  (format t "~&Sending signal 15 to the test-problem process...")
-  (force-output)
-  (sb-ext:process-kill process 15) ; SIGTERM
-  ;; (when (sb-ext:process-alive-p process)
-  ;;   (sb-ext:process-wait process))
-  (iter (while (sb-ext:process-alive-p process))
-        (format t "~&waiting")
-        (sleep 1)))
+;; this one may accidentally overwrite eazy-process:finalize-process.
+;; this is not true, but in case when the symbol is imported in the future.
+;; (defun finalize-process (process)
+;;   (format t "~&Sending signal 15 to the test-problem process...")
+;;   (force-output)
+;;   (sb-ext:process-kill process 15) ; SIGTERM
+;;   ;; (when (sb-ext:process-alive-p process)
+;;   ;;   (sb-ext:process-wait process))
+;;   (iter (while (sb-ext:process-alive-p process))
+;;         (format t "~&waiting")
+;;         (sleep 1)))
+
 
 ;;;; general planners
 
