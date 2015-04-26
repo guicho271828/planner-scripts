@@ -13,3 +13,12 @@
      (validate-plan "domain.pddl"
                     "problem.pddl"
                     "opt.dummy"))))
+
+(test fd-translate-preprocess
+  (let ((*default-pathname-defaults*
+         (asdf:system-relative-pathname :pddl.planner-scripts "t/data/")))
+    (finishes
+     (print (fd-translate "domain.pddl" "problem.pddl" :verbose t)))
+    (finishes
+     (print (fd-preprocess
+             (fd-translate "domain.pddl" "problem.pddl" :verbose t))))))

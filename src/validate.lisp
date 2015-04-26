@@ -34,3 +34,39 @@
          (str (eazy-process:shell-command command :verbose verbose)))
     (when verbose (pprint str stream))
     (scan "Plan valid" str)))
+
+(defun normalize-as-dir (str)
+  (let ((str (remove #\Newline str)))
+    (if (char= #\/ (aref str (1- (length str))))
+        str
+        (concatenate 'string str "/"))))
+
+@export
+(defun fd-translate (domain problem &key verbose)
+  (macrolet (($ (&rest args) `(eazy-process:shell-command ,@args :verbose verbose)))
+    (let ((tmp (normalize-as-dir ($ "mktemp -d"))))
+      ((lambda (str)
+         (when verbose (princ str)))
+       ($ (format nil "cd ~a; ~a/src/translate/translate.py ~a ~a"
+                  tmp
+                  (pathname-as-file
+                   (or (sb-ext:posix-getenv "FD_DIR")
+                       *default-fd-dir*))
+                  (merge-pathnames domain)
+                  (merge-pathnames problem))))
+      (merge-pathnames "output.sas" tmp))))
+
+@export
+(defun fd-preprocess (path &key verbose)
+  (macrolet (($ (&rest args) `(eazy-process:shell-command ,@args :verbose verbose)))
+    (let ((tmp (normalize-as-dir ($ "mktemp -d"))))
+      (with-open-file (s path)
+        ((lambda (str)
+           (when verbose (princ str)))
+         ($ (format nil "cd ~a; ~a/src/preprocess/preprocess"
+                    tmp
+                    (pathname-as-file
+                     (or (sb-ext:posix-getenv "FD_DIR")
+                         *default-fd-dir*)))
+            :input s))
+        (merge-pathnames "output" tmp)))))
