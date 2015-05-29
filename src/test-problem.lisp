@@ -14,7 +14,7 @@
 ;;;; parameters
 
 (defvar *system*
-  (pathname-as-directory 
+  (truename 
    (asdf:system-source-directory :pddl.planner-scripts)))
 
 (defparameter *limitsh*
@@ -42,7 +42,7 @@
   (:report (lambda (c s)
              (with-slots (problem-path domain-path) c
                 (format s "Failed to find a plan! ~a"
-                        (pathname-directory-pathname
+                        (uiop:pathname-directory-pathname
                          problem-path))))))
 
 ;; http://www.ymeme.com/slurping-a-file-common-lisp-83.html
@@ -140,7 +140,7 @@
    (eazy-process:shell-command
     (format nil
             "awk '/maxmem/{print $2; ok=1} END{if(!ok){print -1}}' ~a~a.stat || echo -1"
-            (pathname-directory-pathname problem)
+            (uiop:pathname-directory-pathname problem)
             (pathname-name problem))
     :verbose *verbose*)
    :junk-allowed t))
@@ -150,7 +150,7 @@
    (eazy-process:shell-command
     (format nil
             "awk '/cputime/{print $2; ok=1} END{if(!ok){print -1}}' ~a~a.stat || echo -1"
-            (pathname-directory-pathname problem)
+            (uiop:pathname-directory-pathname problem)
             (pathname-name problem))
     :verbose *verbose*)
    :junk-allowed t))
@@ -158,7 +158,7 @@
 (defun common-complete (problem)
   (probe-file
    (format nil "~a~a.negative"
-           (pathname-directory-pathname problem)
+           (uiop:pathname-directory-pathname problem)
            (pathname-name problem))))
 
 (defun common-plans (problem)
@@ -166,8 +166,8 @@
                (eazy-process:shell-command
                 (format nil
                         "ls ~a~a.plan*"
-                        (pathname-as-directory
-                         (pathname-directory-pathname problem))
+                        (truename
+                         (uiop:pathname-directory-pathname problem))
                         (pathname-name problem))
                 :verbose *verbose*))
         #'string>))

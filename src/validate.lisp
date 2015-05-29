@@ -23,10 +23,12 @@
                       &key
                         verbose
                         (stream *standard-output*))
-  (let* ((command (format nil "~a/src/validate ~:[~;-v~] ~a ~a ~a"
-                          (pathname-as-file
-                           (or (sb-ext:posix-getenv "FD_DIR")
-                               *default-fd-dir*))
+  (let* ((command (format nil "~a ~:[~;-v~] ~a ~a ~a"
+                          (merge-pathnames
+                           "src/validate"
+                           (truename
+                            (or (sb-ext:posix-getenv "FD_DIR")
+                                *default-fd-dir*)))
                           verbose
                           (merge-pathnames domain-pathname)
                           (merge-pathnames problem-pathname)
@@ -47,11 +49,13 @@
     (let ((tmp (normalize-as-dir ($ "mktemp -d"))))
       ((lambda (str)
          (when verbose (princ str)))
-       ($ (format nil "cd ~a; ~a/src/translate/translate.py ~a ~a"
+       ($ (format nil "cd ~a; ~a ~a ~a"
                   tmp
-                  (pathname-as-file
-                   (or (sb-ext:posix-getenv "FD_DIR")
-                       *default-fd-dir*))
+                  (merge-pathnames
+                   "src/translate/translate.py"
+                   (truename
+                    (or (sb-ext:posix-getenv "FD_DIR")
+                        *default-fd-dir*)))
                   (merge-pathnames domain)
                   (merge-pathnames problem))))
       (merge-pathnames "output.sas" tmp))))
@@ -63,10 +67,12 @@
       (with-open-file (s path)
         ((lambda (str)
            (when verbose (princ str)))
-         ($ (format nil "cd ~a; ~a/src/preprocess/preprocess"
+         ($ (format nil "cd ~a; ~a"
                     tmp
-                    (pathname-as-file
-                     (or (sb-ext:posix-getenv "FD_DIR")
-                         *default-fd-dir*)))
+                    (merge-pathnames
+                     "src/preprocess/preprocess"
+                     (truename
+                      (or (sb-ext:posix-getenv "FD_DIR")
+                          *default-fd-dir*))))
             :input s))
         (merge-pathnames "output" tmp)))))
