@@ -40,16 +40,13 @@
     (when verbose (pprint str stream))
     (scan "Plan valid" str)))
 
-(defun normalize-as-dir (str)
-  (let ((str (remove #\Newline str)))
-    (if (char= #\/ (aref str (1- (length str))))
-        str
-        (concatenate 'string str "/"))))
+(macrolet (($ (&rest args)
+             `(remove #\Newline
+                      (eazy-process:shell-command ,@args :verbose verbose))))
 
-@export
-(defun fd-translate (domain problem &key verbose)
-  (macrolet (($ (&rest args) `(eazy-process:shell-command ,@args :verbose verbose)))
-    (let ((tmp (normalize-as-dir ($ "mktemp -d"))))
+  @export
+  (defun fd-translate (domain problem &key verbose)
+    (let ((tmp (pathname-as-directory ($ "mktemp -d"))))
       ((lambda (str)
          (when verbose (princ str)))
        ($ (format nil "cd ~a; ~a ~a ~a"
@@ -57,12 +54,11 @@
                   (fd-relative-pathname "src/translate/translate.py")
                   (merge-pathnames domain)
                   (merge-pathnames problem))))
-      (merge-pathnames "output.sas" tmp))))
+      (merge-pathnames "output.sas" tmp)))
 
-@export
-(defun fd-preprocess (path &key verbose)
-  (macrolet (($ (&rest args) `(eazy-process:shell-command ,@args :verbose verbose)))
-    (let ((tmp (normalize-as-dir ($ "mktemp -d"))))
+  @export
+  (defun fd-preprocess (path &key verbose)
+    (let ((tmp (pathname-as-directory ($ "mktemp -d"))))
       (with-open-file (s path)
         ((lambda (str)
            (when verbose (princ str)))
