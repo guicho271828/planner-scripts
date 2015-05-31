@@ -13,9 +13,7 @@
 
 ;;;; parameters
 
-(defvar *system*
-  (truename 
-   (asdf:system-source-directory :pddl.planner-scripts)))
+(defvar *system* (asdf:system-source-directory :pddl.planner-scripts))
 
 (defparameter *limitsh*
   (merge-pathnames "limit.sh" *system*))
@@ -136,41 +134,35 @@
 ;; printing, and the output result is not used in these result analysers.
 
 (defun common-memory (problem)
-  (parse-integer
-   (eazy-process:shell-command
-    (format nil
-            "awk '/maxmem/{print $2; ok=1} END{if(!ok){print -1}}' ~a~a.stat || echo -1"
-            (uiop:pathname-directory-pathname problem)
-            (pathname-name problem))
-    :verbose *verbose*)
-   :junk-allowed t))
+  (or
+   (with-open-file (s (make-pathname :type "stat" :defaults problem))
+     (iter (for line = (read-line s nil nil))
+           (while line)
+           (match line
+             ((optima.ppcre:ppcre ".*maxmem\\s+([.0-9]+)" num)
+              (leave (parse-integer num :junk-allowed t))))))
+   -1))
 
 (defun common-time (problem)
-  (parse-integer
-   (eazy-process:shell-command
-    (format nil
-            "awk '/cputime/{print $2; ok=1} END{if(!ok){print -1}}' ~a~a.stat || echo -1"
-            (uiop:pathname-directory-pathname problem)
-            (pathname-name problem))
-    :verbose *verbose*)
-   :junk-allowed t))
+  (or
+   (with-open-file (s (make-pathname :type "stat" :defaults problem))
+     (iter (for line = (read-line s nil nil))
+           (while line)
+           (match line
+             ((optima.ppcre:ppcre ".*cputime\\s+([.0-9]+)" num)
+              (leave (parse-integer num :junk-allowed t))))))
+   -1))
 
 (defun common-complete (problem)
   (probe-file
-   (format nil "~a~a.negative"
-           (uiop:pathname-directory-pathname problem)
-           (pathname-name problem))))
+   (make-pathname :type "negative"
+                  :defaults problem)))
 
 (defun common-plans (problem)
-  (sort (split "\\s+"
-               (eazy-process:shell-command
-                (format nil
-                        "ls ~a~a.plan*"
-                        (truename
-                         (uiop:pathname-directory-pathname problem))
-                        (pathname-name problem))
-                :verbose *verbose*))
-        #'string>))
+  (sort (directory
+         (make-pathname :type "plan*"
+                        :defaults problem))
+        #'string> :key #'pathname-type))
 
 (defun find-plans-common (domain problem)
   @ignorable domain
