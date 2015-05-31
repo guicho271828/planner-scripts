@@ -159,9 +159,16 @@
                   :defaults problem)))
 
 (defun common-plans (problem)
-  (sort (directory
-         (make-pathname :type "plan*"
-                        :defaults problem))
+  (sort (remove-duplicates
+         (append
+          (directory
+           (make-pathname :name (format nil "~a.plan" (pathname-name problem))
+                          :type :wild
+                          :defaults problem))
+          (directory
+           (make-pathname :type "plan"
+                          :defaults problem)))
+         :test #'string= :key #'namestring)
         #'string> :key #'pathname-type))
 
 (defun find-plans-common (domain problem)
