@@ -16,6 +16,13 @@
 
 (defvar *default-fd-dir* (search-fd))
 
+(defun fd-relative-pathname (path)
+  (merge-pathnames
+   path
+   (truename
+    (or (sb-ext:posix-getenv "FD_DIR")
+        *default-fd-dir*))))
+
 @export
 (defun validate-plan (domain-pathname
                       problem-pathname
@@ -24,11 +31,7 @@
                         verbose
                         (stream *standard-output*))
   (let* ((command (format nil "~a ~:[~;-v~] ~a ~a ~a"
-                          (merge-pathnames
-                           "src/validate"
-                           (truename
-                            (or (sb-ext:posix-getenv "FD_DIR")
-                                *default-fd-dir*)))
+                          (fd-relative-pathname "src/validate")
                           verbose
                           (merge-pathnames domain-pathname)
                           (merge-pathnames problem-pathname)
@@ -51,11 +54,7 @@
          (when verbose (princ str)))
        ($ (format nil "cd ~a; ~a ~a ~a"
                   tmp
-                  (merge-pathnames
-                   "src/translate/translate.py"
-                   (truename
-                    (or (sb-ext:posix-getenv "FD_DIR")
-                        *default-fd-dir*)))
+                  (fd-relative-pathname "src/translate/translate.py")
                   (merge-pathnames domain)
                   (merge-pathnames problem))))
       (merge-pathnames "output.sas" tmp))))
@@ -69,10 +68,6 @@
            (when verbose (princ str)))
          ($ (format nil "cd ~a; ~a"
                     tmp
-                    (merge-pathnames
-                     "src/preprocess/preprocess"
-                     (truename
-                      (or (sb-ext:posix-getenv "FD_DIR")
-                          *default-fd-dir*))))
+                    (fd-relative-pathname "src/preprocess/preprocess"))
             :input s))
         (merge-pathnames "output" tmp)))))
