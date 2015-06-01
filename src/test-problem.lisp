@@ -135,22 +135,26 @@
 
 (defun common-memory (problem)
   (or
-   (with-open-file (s (make-pathname :type "stat" :defaults problem))
-     (iter (for line = (read-line s nil nil))
-           (while line)
-           (match line
-             ((optima.ppcre:ppcre ".*maxmem\\s+([.0-9]+)" num)
-              (leave (parse-integer num :junk-allowed t))))))
+   (handler-case
+       (with-open-file (s (make-pathname :type "stat" :defaults problem))
+         (iter (for line = (read-line s nil nil))
+               (while line)
+               (match line
+                 ((optima.ppcre:ppcre ".*maxmem\\s+([.0-9]+)" num)
+                  (leave (parse-integer num :junk-allowed t))))))
+     (file-error () nil))
    -1))
 
 (defun common-time (problem)
   (or
-   (with-open-file (s (make-pathname :type "stat" :defaults problem))
-     (iter (for line = (read-line s nil nil))
-           (while line)
-           (match line
-             ((optima.ppcre:ppcre ".*cputime\\s+([.0-9]+)" num)
-              (leave (parse-integer num :junk-allowed t))))))
+   (handler-case
+       (with-open-file (s (make-pathname :type "stat" :defaults problem))
+         (iter (for line = (read-line s nil nil))
+               (while line)
+               (match line
+                 ((optima.ppcre:ppcre ".*cputime\\s+([.0-9]+)" num)
+                  (leave (parse-integer num :junk-allowed t))))))
+     (file-error () nil))
    -1))
 
 (defun common-complete (problem)
