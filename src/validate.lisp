@@ -38,7 +38,7 @@
                           (merge-pathnames plan-pathname)))
          (str (eazy-process:shell-command command :verbose verbose)))
     (when verbose (pprint str stream))
-    (scan "Plan valid" str)))
+    (ppcre:scan "Plan valid" str)))
 
 (macrolet (($ (&rest args)
              `(remove #\Newline

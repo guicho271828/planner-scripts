@@ -9,7 +9,7 @@
     (t rlimit)))
 
 (defun wrap-option (string)
-  (format nil "~{\"~a\" ~}" (split " " string)))
+  (format nil "~{\"~a\" ~}" (ppcre:split " " string)))
 
 ;;;; parameters
 
