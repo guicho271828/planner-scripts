@@ -18,7 +18,8 @@
   :version "0.1"
   :author "guicho"
   :license "LLGPL"
-  :depends-on (:pddl :eazy-process :trivial-signal :optima.ppcre)
+  :depends-on (:pddl :eazy-process :trivial-signal :optima.ppcre
+                     :cl-rlimit)
   :pathname "src/"
   :components ((:file :test-problem)
                (:file :validate))

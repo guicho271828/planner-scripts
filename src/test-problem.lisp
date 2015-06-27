@@ -20,15 +20,15 @@
 
 @export
 (defparameter *memory-limit*
-  (rlimit +rlimit-address-space+))
+  (cl-rlimit:rlimit cl-rlimit:+rlimit-address-space+))
 
 @export
 (defparameter *soft-time-limit*
-  (rlimit +rlimit-cpu-time+))
+  (cl-rlimit:rlimit cl-rlimit:+rlimit-cpu-time+))
 
 @export
 (defparameter *hard-time-limit*
-  (rlimit +rlimit-cpu-time+))
+  (cl-rlimit:rlimit cl-rlimit:+rlimit-cpu-time+))
 
 (defvar *verbose* nil)
 
