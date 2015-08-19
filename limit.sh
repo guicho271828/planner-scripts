@@ -102,6 +102,10 @@ do
     trap "interrupt $sig" $sig
 done 
 trap "finalize" EXIT
+while [[ -e $cgcpu || -e $cgmem ]]
+do
+    rmdir $($VERBOSE && echo -v) $cgcpu $cgmem
+done
 mkdir $($VERBOSE && echo -v) -p $cgcpu
 mkdir $($VERBOSE && echo -v) -p $cgmem
 echo 0 > $cgmem/memory.swappiness
