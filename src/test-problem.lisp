@@ -97,6 +97,9 @@
                               (hard-time-limit *hard-time-limit*)
                             &aux (*verbose* verbose))
   (declare (ignore time-limit))
+  (unless (probe-file *limitsh*)
+    (error "Failed to find limit.sh! Did you moved the directory? ~a "
+           *limitsh*))
   (let ((problem (pathname problem))
         (domain (pathname domain))
         (*print-case* :downcase))
