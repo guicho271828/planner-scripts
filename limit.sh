@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "Running limit.sh: $@"
 # exported variables:
 # SCRDIR -- script dir. the dir of this file
 # DIR -- original PWD when this file is invoked
@@ -102,6 +103,7 @@ do
     trap "interrupt $sig" $sig
 done 
 trap "finalize" EXIT
+echo "limit.sh: removing and making cgdir"
 while [[ -e $cgcpu || -e $cgmem ]]
 do
     rmdir $($VERBOSE && echo -v) $cgcpu $cgmem
