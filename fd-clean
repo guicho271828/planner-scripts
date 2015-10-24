@@ -9,26 +9,31 @@
 
 # echo $FD_DIR
 
-find-fd (){
-    # echo "finding fd installation from $1 ..."
+find-fd-py (){
+    fdscript=$(find $FD_DIR -name "fast-downward.py")
+    [[ -z $fdscript ]]
+}
+
+find-fd-upward (){
+    echo "finding FD installation from $1 ..."
     if [[ -d $1/downward ]]
     then
         FD_DIR=$(readlink -ef $1/downward)
+        find-fd-py
     else
         if [[ $1 == / ]]
         then
             exit 1
         else
-            find-fd $(readlink -ef $1/..)
+            find-fd-upward $(readlink -ef $1/..)
         fi
     fi
 }
 
-if [[ ! -e $FD_DIR/src/fast-downward.py ]]
+if find-fd-py
 then
-    find-fd $(dirname $(readlink -ef $0))
+    find-fd-upward $(dirname $(readlink -ef $0))
 fi
-
 
 plan(){
     echo $(whoami)@$(hostname)
@@ -36,14 +41,14 @@ plan(){
     declare -a array=($OPTIONS)
     if [[ ${array[0]} == --alias ]]
     then
-        echodo $FD_DIR/src/fast-downward.py \
+        echodo $fdscript \
             $OPTIONS \
             --run-all \
             --plan-file $probdir/$probname.plan \
             $(if $VERBOSE ; then echo "--log-level info" ; else echo "--log-level warning" ; fi) \
             domain.pddl problem.pddl
     else
-        echodo $FD_DIR/src/fast-downward.py \
+        echodo $fdscript \
             --run-all \
             --plan-file $probdir/$probname.plan \
             $(if $VERBOSE ; then echo "--log-level info" ; else echo "--log-level warning" ; fi) \
