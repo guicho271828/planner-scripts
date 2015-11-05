@@ -7,7 +7,6 @@
   (when (probe-file path)
     (delete-file path)))
 
-#+nil
 (test test-problem-fd
   (let ((*default-pathname-defaults*
          (asdf:system-relative-pathname :pddl.planner-scripts "t/")))
@@ -28,6 +27,7 @@
       (ensure-deleted (merge-pathnames "data/problem.negative"))
       (mapcar #'ensure-deleted plan-path-list))))
 
+#+X86_64
 (test test-problem-ff
   (let ((*default-pathname-defaults*
          (asdf:system-relative-pathname :pddl.planner-scripts "t/")))
@@ -47,6 +47,7 @@
       (ensure-deleted (merge-pathnames "data/problem.negative"))
       (mapcar #'ensure-deleted plan-path-list))))
 
+#+X86_64
 (test test-problem-ff-noverbose
   (let ((*default-pathname-defaults*
          (asdf:system-relative-pathname :pddl.planner-scripts "t/")))

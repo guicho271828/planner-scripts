@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "Running limit.sh: $@"
 # exported variables:
 # SCRDIR -- script dir. the dir of this file
 # DIR -- original PWD when this file is invoked
@@ -102,6 +103,11 @@ do
     trap "interrupt $sig" $sig
 done 
 trap "finalize" EXIT
+echo "limit.sh: removing and making cgdir"
+while [[ -e $cgcpu || -e $cgmem ]]
+do
+    rmdir $($VERBOSE && echo -v) $cgcpu $cgmem
+done
 mkdir $($VERBOSE && echo -v) -p $cgcpu
 mkdir $($VERBOSE && echo -v) -p $cgmem
 echo 0 > $cgmem/memory.swappiness
@@ -109,7 +115,8 @@ echo 1 > $cgmem/memory.use_hierarchy
 if [[ $mem -gt 0 ]]
 then
     echo $(($mem * 1024)) > $cgmem/memory.limit_in_bytes
-    echo $(($mem * 1024)) > $cgmem/memory.memsw.limit_in_bytes
+    # some kernels do not have memsw
+    bash -c "echo $(($mem * 1024)) > $cgmem/memory.memsw.limit_in_bytes" 2>/dev/null
 fi
 
 mkdir $($VERBOSE && echo -v) -p /tmp/newtmp

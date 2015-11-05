@@ -4,19 +4,18 @@
 ################################################################
 #### default options
 
-bin=$SCRDIR/ff-larger
+bin=$SCRDIR/MpC
 
 ################################################################
 #### main
 
 plan(){
     vecho $(whoami)@$(hostname)
-    vechodo $bin $(if $VERBOSE ; then echo "-i 3" ; fi) $OPTIONS \
-        -f problem.pddl -o domain.pddl
+    vechodo $bin domain.pddl problem.pddl -Q $OPTIONS
 }
 
 finalize (){
-    grep "^\(step\)\?\s*[0-9]\+: \(.*\)" log | cut -d: -f 2 | sed -e "s/^ \(.*\)/(\1)/g" > plan
+    awk '/^[0-9]+ +:.*/{ y=match($0,/\(.*\)/); print substr($0,RSTART,RLENGTH)}' log > plan
     [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
 }
 

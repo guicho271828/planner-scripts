@@ -9,28 +9,26 @@
     (t rlimit)))
 
 (defun wrap-option (string)
-  (format nil "~{\"~a\" ~}" (split " " string)))
+  (format nil "~{\"~a\" ~}" (ppcre:split " " string)))
 
 ;;;; parameters
 
-(defvar *system*
-  (pathname-as-directory 
-   (asdf:system-source-directory :pddl.planner-scripts)))
+(defvar *system* (asdf:system-source-directory :pddl.planner-scripts))
 
 (defparameter *limitsh*
   (merge-pathnames "limit.sh" *system*))
 
 @export
 (defparameter *memory-limit*
-  (rlimit +rlimit-address-space+))
+  (cl-rlimit:rlimit cl-rlimit:+rlimit-address-space+))
 
 @export
 (defparameter *soft-time-limit*
-  (rlimit +rlimit-cpu-time+))
+  (cl-rlimit:rlimit cl-rlimit:+rlimit-cpu-time+))
 
 @export
 (defparameter *hard-time-limit*
-  (rlimit +rlimit-cpu-time+))
+  (cl-rlimit:rlimit cl-rlimit:+rlimit-cpu-time+))
 
 (defvar *verbose* nil)
 
@@ -42,7 +40,7 @@
   (:report (lambda (c s)
              (with-slots (problem-path domain-path) c
                 (format s "Failed to find a plan! ~a"
-                        (pathname-directory-pathname
+                        (uiop:pathname-directory-pathname
                          problem-path))))))
 
 ;; http://www.ymeme.com/slurping-a-file-common-lisp-83.html
@@ -70,15 +68,18 @@
   ;; (sb-ext:exit :code 1 :abort t)
   )
 
-(defun finalize-process (process)
-  (format t "~&Sending signal 15 to the test-problem process...")
-  (force-output)
-  (sb-ext:process-kill process 15) ; SIGTERM
-  ;; (when (sb-ext:process-alive-p process)
-  ;;   (sb-ext:process-wait process))
-  (iter (while (sb-ext:process-alive-p process))
-        (format t "~&waiting")
-        (sleep 1)))
+;; this one may accidentally overwrite eazy-process:finalize-process.
+;; this is not true, but in case when the symbol is imported in the future.
+;; (defun finalize-process (process)
+;;   (format t "~&Sending signal 15 to the test-problem process...")
+;;   (force-output)
+;;   (sb-ext:process-kill process 15) ; SIGTERM
+;;   ;; (when (sb-ext:process-alive-p process)
+;;   ;;   (sb-ext:process-wait process))
+;;   (iter (while (sb-ext:process-alive-p process))
+;;         (format t "~&waiting")
+;;         (sleep 1)))
+
 
 ;;;; general planners
 
@@ -96,6 +97,9 @@
                               (hard-time-limit *hard-time-limit*)
                             &aux (*verbose* verbose))
   (declare (ignore time-limit))
+  (unless (probe-file *limitsh*)
+    (error "Failed to find limit.sh! Did you moved the directory? ~a "
+           *limitsh*))
   (let ((problem (pathname problem))
         (domain (pathname domain))
         (*print-case* :downcase))
@@ -133,41 +137,46 @@
 ;; printing, and the output result is not used in these result analysers.
 
 (defun common-memory (problem)
-  (parse-integer
-   (eazy-process:shell-command
-    (format nil
-            "awk '/maxmem/{print $2; ok=1} END{if(!ok){print -1}}' ~a~a.stat || echo -1"
-            (pathname-directory-pathname problem)
-            (pathname-name problem))
-    :verbose *verbose*)
-   :junk-allowed t))
+  (or
+   (handler-case
+       (with-open-file (s (make-pathname :type "stat" :defaults problem))
+         (iter (for line = (read-line s nil nil))
+               (while line)
+               (match line
+                 ((optima.ppcre:ppcre ".*maxmem\\s+([.0-9]+)" num)
+                  (leave (parse-integer num :junk-allowed t))))))
+     (file-error () nil))
+   -1))
 
 (defun common-time (problem)
-  (parse-integer
-   (eazy-process:shell-command
-    (format nil
-            "awk '/cputime/{print $2; ok=1} END{if(!ok){print -1}}' ~a~a.stat || echo -1"
-            (pathname-directory-pathname problem)
-            (pathname-name problem))
-    :verbose *verbose*)
-   :junk-allowed t))
+  (or
+   (handler-case
+       (with-open-file (s (make-pathname :type "stat" :defaults problem))
+         (iter (for line = (read-line s nil nil))
+               (while line)
+               (match line
+                 ((optima.ppcre:ppcre ".*cputime\\s+([.0-9]+)" num)
+                  (leave (parse-integer num :junk-allowed t))))))
+     (file-error () nil))
+   -1))
 
 (defun common-complete (problem)
   (probe-file
-   (format nil "~a~a.negative"
-           (pathname-directory-pathname problem)
-           (pathname-name problem))))
+   (make-pathname :type "negative"
+                  :defaults problem)))
 
 (defun common-plans (problem)
-  (sort (split "\\s+"
-               (eazy-process:shell-command
-                (format nil
-                        "ls ~a~a.plan*"
-                        (pathname-as-directory
-                         (pathname-directory-pathname problem))
-                        (pathname-name problem))
-                :verbose *verbose*))
-        #'string>))
+  (sort (remove-duplicates
+         (append
+          (directory
+           (make-pathname :name (format nil "~a.plan" (pathname-name problem))
+                          :type :wild
+                          :defaults problem))
+          (directory
+           (make-pathname :type "plan"
+                          :defaults problem)))
+         :test #'string= :key #'namestring)
+        #'string> :key #'pathname-type))
 
 (defun find-plans-common (domain problem)
   @ignorable domain
