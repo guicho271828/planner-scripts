@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Running limit.sh: $@"
+echo "Running limit.sh($$): $@"
 # exported variables:
 # SCRDIR -- script dir. the dir of this file
 # DIR -- original PWD when this file is invoked
@@ -47,11 +47,11 @@ do
             [[ $mem == 'unlimited' ]] && mem=-1 ;;
         -)  break ;;
         \?) OPT_ERROR=1; break;;
-        * ) echo "unsupported option $opt" ;;
+        * ) echo "limit.sh($$): unsupported option $opt" ;;
     esac
 done
 
-$VERBOSE && echo mem:$(($mem/1000))MB, time:${time}sec
+$VERBOSE && echo limit.sh($$): mem:$(($mem/1000))MB, time:${time}sec
 
 shift $(( $OPTIND - 1 ))
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
@@ -96,14 +96,14 @@ interrupt (){
 finalize (){
     rmdir $($VERBOSE && echo -v) $cgcpu $cgmem
     $DEBUG || rm $($VERBOSE && echo -v) -rf $TMP
-    $DEBUG && echo Debug flag is on, $TMP not removed!
+    $DEBUG && echo limit.sh($$): Debug flag is on, $TMP not removed!
 }
 for sig in SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
 do
     trap "interrupt $sig" $sig
 done 
 trap "finalize" EXIT
-echo "limit.sh: removing and making cgdir"
+echo "limit.sh($$): removing and making cgdir"
 while [[ -e $cgcpu || -e $cgmem ]]
 do
     rmdir $($VERBOSE && echo -v) $cgcpu $cgmem
@@ -125,9 +125,9 @@ export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
 record-stat
 export STAT=$(readlink -ef $TMP/stat)
 
-vecho $TMP
+vecho limit.sh($$): $TMP
 command=$(readlink -ef "$SCRDIR/$1") ; shift ;
-vecho "current planner options : $OPTIONS"
+vecho "limit.sh($$): current planner options : $OPTIONS"
 vechodo cgexec -g cpuacct:$cpuacct -g memory:$memory $command $@ &
 pid=$!
 
@@ -137,12 +137,12 @@ do
     record-stat
     if [[ $time -gt 0 && $cpuusage -gt ${time}000 ]]
     then
-        echo "cpuacct.usage exceeding. $cpuusage msec." >&2
+        echo "limit.sh($$): cpuacct.usage exceeding. $cpuusage msec." >&2
         mykill $pid
     fi
     if [[ $mem -gt 0 && $memusage -gt $mem ]]
     then
-        echo "memory.max_usage_in_bytes exceeding. $memusage kB." >&2
+        echo "limit.sh($$): memory.max_usage_in_bytes exceeding. $memusage kB." >&2
         mykill $pid
     fi
 done
@@ -150,7 +150,7 @@ done
 wait $pid
 exitstatus=$?
 case $exitstatus in
-    0) $VERBOSE && echo The program successfully finished. ;;
-    *) echo Error occured. status: $exitstatus ;;
+    0) $VERBOSE && echo limit.sh($$): The program successfully finished. ;;
+    *) echo limit.sh($$): Error occured. status: $exitstatus ;;
 esac
 
