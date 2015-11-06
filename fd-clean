@@ -50,6 +50,7 @@ plan(){
     else
         echodo $fdscript \
             --run-all \
+            --search-memory-limit 2G \
             --plan-file $probdir/$probname.plan \
             $(if $VERBOSE ; then echo "--log-level info" ; else echo "--log-level warning" ; fi) \
             domain.pddl problem.pddl \
