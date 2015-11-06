@@ -51,7 +51,7 @@ do
     esac
 done
 
-$VERBOSE && echo limit.sh($$): mem:$(($mem/1000))MB, time:${time}sec
+$VERBOSE && echo "limit.sh($$): mem:$(($mem/1000))MB, time:${time}sec"
 
 shift $(( $OPTIND - 1 ))
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
@@ -96,7 +96,7 @@ interrupt (){
 finalize (){
     rmdir $($VERBOSE && echo -v) $cgcpu $cgmem
     $DEBUG || rm $($VERBOSE && echo -v) -rf $TMP
-    $DEBUG && echo limit.sh($$): Debug flag is on, $TMP not removed!
+    $DEBUG && echo "limit.sh($$): Debug flag is on, $TMP not removed!"
 }
 for sig in SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
 do
@@ -125,7 +125,7 @@ export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
 record-stat
 export STAT=$(readlink -ef $TMP/stat)
 
-vecho limit.sh($$): $TMP
+vecho "limit.sh($$): $TMP"
 command=$(readlink -ef "$SCRDIR/$1") ; shift ;
 vecho "limit.sh($$): current planner options : $OPTIONS"
 vechodo cgexec -g cpuacct:$cpuacct -g memory:$memory $command $@ &
@@ -150,7 +150,7 @@ done
 wait $pid
 exitstatus=$?
 case $exitstatus in
-    0) $VERBOSE && echo limit.sh($$): The program successfully finished. ;;
-    *) echo limit.sh($$): Error occured. status: $exitstatus ;;
+    0) $VERBOSE && echo "limit.sh($$): The program successfully finished." ;;
+    *) echo "limit.sh($$): Error occured. status: $exitstatus" ;;
 esac
 
