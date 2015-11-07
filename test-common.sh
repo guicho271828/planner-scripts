@@ -18,6 +18,7 @@ success (){
     else
         echo -n "$results"$'\x1b[31;1m'✘$'\x1b[0m' >> $tmpdir/results
         echo $'\x1b[31;1m'"Unexpected Failure:"$'\x1b[0m' $@ >> $tmpdir/report
+        touch $tmpdir/fail
     fi
 }
 
@@ -37,6 +38,10 @@ report (){
     echo 
     echo Details:
     cat $tmpdir/report
+    test -e $tmpdir/fail
+    status=$?
+    rm -r $tmpdir
+    exit $status
 }
 
 trap report EXIT
