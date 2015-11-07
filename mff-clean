@@ -4,6 +4,7 @@
 ################################################################
 #### default options
 
+# bin=$SCRDIR/mff-original
 bin=$SCRDIR/mff-myself
 
 ################################################################
@@ -32,6 +33,11 @@ negatively-proven (){
 report-results (){
     local cost=$(cat plan | wc -l)
     [[ -e plan && $cost -gt 0 ]] && echo "Plan cost: " $cost
+}
+
+plan-found (){
+    local cost=$(cat plan | wc -l)
+    [[ -e plan && $cost -gt 0 ]]
 }
 
 ################################################################
