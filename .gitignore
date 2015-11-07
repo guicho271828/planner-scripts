@@ -3,7 +3,9 @@
 *.stat
 *.negative
 *.plan.*
+*.plan
 *cost
 *time
 *sas*
 *TAGS
+
