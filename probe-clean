@@ -44,6 +44,10 @@ negatively-proven (){
 report-results (){
     local cost=$(cat plan.1 | wc -l)
     [[ -e plan.1 && $cost -gt 0 ]] && echo "Plan cost: " $cost
+}
+
+plan-found (){
+    local cost=$(cat plan.1 | wc -l)
     [[ -e plan.1 && $cost -gt 0 ]]
 }
 

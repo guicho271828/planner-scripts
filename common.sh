@@ -58,12 +58,10 @@ _finalize (){
     finalize                    # call planner-specific finalizer
     vecho $'\x1b[34;1m'--------------------------------------------------------
     vecho Result:
-    report-results 2> /dev/null
-    local status=$?
-    [[ $status == 0 ]] || \
-        vecho "Search Failed: No path was found in the current configuration."
+    $VERBOSE && report-results 2> /dev/null
     vecho --------------------------------------------------------$'\x1b[0m'
-    exit $status
+    plan-found
+    exit $?
 }
 
 ################################################################
@@ -89,3 +87,4 @@ then
 fi
 
 wait $pid
+

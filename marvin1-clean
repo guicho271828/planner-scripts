@@ -48,4 +48,9 @@ report-results (){
     grep "MakeSpan" log
 }
 
+plan-found (){
+    local cost=$(cat plan | wc -l)
+    [[ -e plan && $cost -gt 0 ]]
+}
+
 . $SCRDIR/common.sh

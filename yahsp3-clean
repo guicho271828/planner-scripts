@@ -27,8 +27,12 @@ negatively-proven (){
 }
 
 report-results (){
-    local cost=$(grep log Length | cut -d" " -f3)
+    local cost=$(grep Length log | cut -d" " -f3)
     [[ -e plan && $cost -gt 0 ]] && echo "Plan cost: " $cost
+}
+
+plan-found (){
+    local cost=$(grep Length log | cut -d" " -f3)
     [[ -e plan && $cost -gt 0 ]]
 }
 
