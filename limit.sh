@@ -154,3 +154,4 @@ case $exitstatus in
     *) echo "limit.sh($$): Error occured. status: $exitstatus" ;;
 esac
 
+exit $exitstatus

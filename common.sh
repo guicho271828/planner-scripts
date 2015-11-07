@@ -58,8 +58,10 @@ _finalize (){
     finalize                    # call planner-specific finalizer
     vecho $'\x1b[34;1m'--------------------------------------------------------
     vecho Result:
-    report-results 2> /dev/null
+    $VERBOSE && report-results 2> /dev/null
     vecho --------------------------------------------------------$'\x1b[0m'
+    plan-found
+    exit $?
 }
 
 ################################################################
@@ -85,3 +87,4 @@ then
 fi
 
 wait $pid
+
