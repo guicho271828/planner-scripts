@@ -71,7 +71,7 @@ report-results (){
 }
 
 plan-found (){
-    ls -e $probdir/$probname.plan*
+    ls $probdir/$probname.plan*
 }
 
 ################################################################
