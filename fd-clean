@@ -70,6 +70,10 @@ report-results (){
     awk "/Plan cost:/{print $2}" log | sort | head -n 1
 }
 
+plan-found (){
+    ls -e $probdir/$probname.plan*
+}
+
 ################################################################
 
 . $SCRDIR/common.sh
