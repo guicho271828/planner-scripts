@@ -110,21 +110,17 @@
                                                (:xcpu #'%signal)
                                                (:term #'%signal)
                                                (:usr1 #'%signal))
-            (eazy-process:with-process
-                (p (mapcar #'princ-to-string
-                           `(,*limitsh*
-                             -m ,(ulimit memory)
-                             -t ,(ulimit hard-time-limit)
-                             ,@(when iterated `(-i))
-                             ,@(when verbose `(-v))
-                             ,@(when options `(-o ,options))
-                             -- ,name ,problem ,domain))
-                   `(:in
-                     (,(pathname (format nil "/proc/~a/fd/1" (eazy-process:getpid)))
-                       :direction :output :if-exists :append :if-does-not-exist :create)
-                     (,(pathname (format nil "/proc/~a/fd/2" (eazy-process:getpid)))
-                       :direction :output :if-exists :append :if-does-not-exist :create)))
-              (eazy-process:wait p))
+            (uiop:run-program (mapcar #'princ-to-string
+                                      `(,*limitsh*
+                                        -m ,(ulimit memory)
+                                        -t ,(ulimit hard-time-limit)
+                                        ,@(when iterated `(-i))
+                                        ,@(when verbose `(-v))
+                                        ,@(when options `(-o ,options))
+                                        -- ,name ,problem ,domain))
+                              :ignore-error-status t
+                              :output t
+                              :error-output t)
             (invoke-restart
              (find-restart 'finish)))
         (finish ()
