@@ -37,12 +37,12 @@ test-non-ff (){
 
 
 #  mff doesnt work at all
-for planner in  jasper mercury ff lpg marvin1 marvin2 mpc mp m probe yahsp3
+for planner in yahsp-mco jasper mercury ff lpg marvin1 marvin2 mpc mp m probe yahsp3
 do
     test-non-ff $planner-clean
 done
 
-section marvin1-typetest
-
-fail ../limit.sh -t 1 -v -- marvin1-clean tidy-p01.pddl tidy-domain.pddl
+# section marvin1-typetest
+# 
+# fail ../limit.sh -t 1 -v -- marvin1-clean tidy-p01.pddl tidy-domain.pddl
 
