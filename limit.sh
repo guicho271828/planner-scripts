@@ -68,6 +68,7 @@ EOF
 fi
 
 record-stat (){
+    walltime=$(($(date +%s)-$start))
     until cpuusage=$(( $(< $cgcpu/cpuacct.usage) / 1000000 ))
     do
         sleep 0.2
@@ -77,6 +78,7 @@ record-stat (){
         sleep 0.2
     done
     cat > $TMP/stat <<EOF
+walltime $walltime
 cputime $cpuusage
 maxmem $memusage
 EOF
@@ -122,6 +124,7 @@ fi
 mkdir $($VERBOSE && echo -v) -p /tmp/newtmp
 export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
 
+start=$(date +%s)
 record-stat
 export STAT=$(readlink -ef $TMP/stat)
 
@@ -135,11 +138,16 @@ while ps $pid &> /dev/null
 do
     sleep 0.2
     record-stat
-    if [[ $time -gt 0 && $cpuusage -gt ${time}000 ]]
+    if [[ $time -gt 0 && $walltime -gt $time ]]
     then
-        echo "limit.sh($$): cpuacct.usage exceeding. $cpuusage msec." >&2
+        echo "limit.sh($$): walltime exceeding. $walltime sec." >&2
         mykill $pid
     fi
+    # if [[ $time -gt 0 && $cpuusage -gt ${time}000 ]]
+    # then
+    #     echo "limit.sh($$): cpuacct.usage exceeding. $cpuusage msec." >&2
+    #     mykill $pid
+    # fi
     if [[ $mem -gt 0 && $memusage -gt $mem ]]
     then
         echo "limit.sh($$): memory.max_usage_in_bytes exceeding. $memusage kB." >&2
