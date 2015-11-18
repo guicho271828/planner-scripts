@@ -183,6 +183,8 @@
       (signal 'plan-not-found))
     (values
      plans
-     (common-time problem)
+     (let ((time (common-time problem)))
+       (format t "~&Time spent: ~,1f" (float (/ time 1000)))
+       time)
      (common-memory problem)
      complete)))
