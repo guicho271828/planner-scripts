@@ -177,6 +177,8 @@
   @ignorable domain
   (let ((plans (common-plans problem))
         (complete (common-complete problem)))
+    (when complete
+      (format t "~&Problem UNSAT"))
     (when (and (not plans) (not complete))
       (signal 'plan-not-found))
     (values
