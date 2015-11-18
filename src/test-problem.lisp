@@ -104,28 +104,27 @@
         (domain (pathname domain))
         (*print-case* :downcase))
     (fresh-line)
-    (handler-bind ((warning #'muffle-warning))
-      (restart-case
-          (trivial-signal:signal-handler-bind ((:int #'%signal)
-                                               (:xcpu #'%signal)
-                                               (:term #'%signal)
-                                               (:usr1 #'%signal))
-            (uiop:run-program (mapcar #'princ-to-string
-                                      `(,*limitsh*
-                                        -m ,(ulimit memory)
-                                        -t ,(ulimit hard-time-limit)
-                                        ,@(when iterated `(-i))
-                                        ,@(when verbose `(-v))
-                                        ,@(when options `(-o ,options))
-                                        -- ,name ,problem ,domain))
-                              :ignore-error-status t
-                              :output t
-                              :error-output t)
-            (invoke-restart
-             (find-restart 'finish)))
-        (finish ()
-          (when *verbose* (format t "~&Running finalization"))
-          (find-plans-common domain problem))))))
+    (restart-case
+        (trivial-signal:signal-handler-bind ((:int #'%signal)
+                                             (:xcpu #'%signal)
+                                             (:term #'%signal)
+                                             (:usr1 #'%signal))
+          (uiop:run-program (mapcar #'princ-to-string
+                                    `(,*limitsh*
+                                      -m ,(ulimit memory)
+                                      -t ,(ulimit hard-time-limit)
+                                      ,@(when iterated `(-i))
+                                      ,@(when verbose `(-v))
+                                      ,@(when options `(-o ,options))
+                                      -- ,name ,problem ,domain))
+                            :ignore-error-status t
+                            :output t
+                            :error-output t)
+          (invoke-restart
+           (find-restart 'finish)))
+      (finish ()
+        (when *verbose* (format t "~&Running finalization"))
+        (find-plans-common domain problem)))))
 
 ;;;; reading the results
 ;; limit.sh writes to a specific output file, so read the result.
@@ -176,10 +175,12 @@
 
 (defun find-plans-common (domain problem)
   @ignorable domain
-  (values
-   (if-let ((plans (common-plans problem)))
+  (let ((plans (common-plans problem))
+        (complete (common-complete problem)))
+    (when (and (not plans) (not complete))
+      (signal 'plan-not-found))
+    (values
      plans
-     (signal 'plan-not-found))
-   (common-time problem)
-   (common-memory problem)
-   (common-complete problem)))
+     (common-time problem)
+     (common-memory problem)
+     complete)))
