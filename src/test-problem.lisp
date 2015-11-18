@@ -177,7 +177,9 @@
 (defun find-plans-common (domain problem)
   @ignorable domain
   (values
-   (common-plans problem)
+   (if-let ((plans (common-plans problem)))
+     plans
+     (signal 'plan-not-found))
    (common-time problem)
    (common-memory problem)
    (common-complete problem)))
