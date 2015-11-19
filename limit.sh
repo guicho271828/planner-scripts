@@ -138,16 +138,16 @@ while ps $pid &> /dev/null
 do
     sleep 0.2
     record-stat
-    if [[ $time -gt 0 && $walltime -gt $time ]]
-    then
-        echo "limit.sh($$): walltime exceeding. $walltime sec." >&2
-        mykill $pid
-    fi
-    # if [[ $time -gt 0 && $cpuusage -gt ${time}000 ]]
+    # if [[ $time -gt 0 && $walltime -gt $time ]]
     # then
-    #     echo "limit.sh($$): cpuacct.usage exceeding. $cpuusage msec." >&2
+    #     echo "limit.sh($$): walltime exceeding. $walltime sec." >&2
     #     mykill $pid
     # fi
+    if [[ $time -gt 0 && $cpuusage -gt ${time}000 ]]
+    then
+        echo "limit.sh($$): cpuacct.usage exceeding. $cpuusage msec." >&2
+        mykill $pid
+    fi
     if [[ $mem -gt 0 && $memusage -gt $mem ]]
     then
         echo "limit.sh($$): memory.max_usage_in_bytes exceeding. $memusage kB." >&2
