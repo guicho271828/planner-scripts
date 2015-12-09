@@ -138,7 +138,7 @@
          (iter (for line = (read-line s nil nil))
                (while line)
                (match line
-                 ((optima.ppcre:ppcre ".*maxmem\\s+([.0-9]+)" num)
+                 ((trivia.ppcre:ppcre ".*maxmem\\s+([.0-9]+)" num)
                   (leave (parse-integer num :junk-allowed t))))))
      (file-error () nil))
    -1))
@@ -150,7 +150,7 @@
          (iter (for line = (read-line s nil nil))
                (while line)
                (match line
-                 ((optima.ppcre:ppcre ".*cputime\\s+([.0-9]+)" num)
+                 ((trivia.ppcre:ppcre ".*cputime\\s+([.0-9]+)" num)
                   (leave (parse-integer num :junk-allowed t))))))
      (file-error () nil))
    -1))
