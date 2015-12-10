@@ -23,6 +23,7 @@ find-fd-upward (){
     else
         if [[ $1 == / ]]
         then
+            echo "failed to find Fast Downward installation (fast-downward.py) !"
             exit 1
         else
             find-fd-upward $(readlink -ef $1/..)
