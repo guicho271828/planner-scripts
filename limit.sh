@@ -105,13 +105,16 @@ do
     trap "interrupt $sig" $sig
 done 
 trap "finalize" EXIT
-echo "limit.sh($$): removing and making cgdir"
+echo "limit.sh($$): removing"
 while [[ -e $cgcpu || -e $cgmem ]]
 do
     rmdir $($VERBOSE && echo -v) $cgcpu $cgmem
 done
+echo "limit.sh($$): ensured no cgdir present."
+echo "limit.sh($$): Making cgdir."
 mkdir $($VERBOSE && echo -v) -p $cgcpu
 mkdir $($VERBOSE && echo -v) -p $cgmem
+echo "limit.sh($$): Configuring cgdir."
 echo 0 > $cgmem/memory.swappiness
 echo 1 > $cgmem/memory.use_hierarchy
 if [[ $mem -gt 0 ]]
@@ -130,7 +133,14 @@ export STAT=$(readlink -ef $TMP/stat)
 
 vecho "limit.sh($$): $TMP"
 command=$(readlink -ef "$SCRDIR/$1") ; shift ;
+vecho "limit.sh($$): command to execute: $command"
 vecho "limit.sh($$): current planner options : $OPTIONS"
+
+[ -e $command ] || {
+    echo "Command $command does not exist! exiting.." >&2
+    exit 1
+}
+
 vechodo cgexec -g cpuacct:$cpuacct -g memory:$memory $command $@ &
 pid=$!
 
