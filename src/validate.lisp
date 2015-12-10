@@ -20,7 +20,7 @@
   (merge-pathnames
    path
    (truename
-    (or (sb-ext:posix-getenv "FD_DIR")
+    (or (uiop:getenv "FD_DIR")
         *default-fd-dir*))))
 
 @export

@@ -64,22 +64,7 @@
   (format t "~&received ~A~%" (trivial-signal:signal-name signo))
   (signal 'trivial-signal:unix-signal :signo signo)
   (format t "~&Condition not handled, Exiting.")
-  (error "~&Condition not handled, Exiting.")
-  ;; (sb-ext:exit :code 1 :abort t)
-  )
-
-;; this one may accidentally overwrite eazy-process:finalize-process.
-;; this is not true, but in case when the symbol is imported in the future.
-;; (defun finalize-process (process)
-;;   (format t "~&Sending signal 15 to the test-problem process...")
-;;   (force-output)
-;;   (sb-ext:process-kill process 15) ; SIGTERM
-;;   ;; (when (sb-ext:process-alive-p process)
-;;   ;;   (sb-ext:process-wait process))
-;;   (iter (while (sb-ext:process-alive-p process))
-;;         (format t "~&waiting")
-;;         (sleep 1)))
-
+  (error "~&Condition not handled, Exiting."))
 
 ;;;; general planners
 
