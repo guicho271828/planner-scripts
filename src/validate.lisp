@@ -35,14 +35,14 @@
                           verbose
                           (merge-pathnames domain-pathname)
                           (merge-pathnames problem-pathname)
-                          (merge-pathnames plan-pathname)))
-         (str (eazy-process:shell-command command :verbose verbose)))
-    (when verbose (pprint str stream))
-    (ppcre:scan "Plan valid" str)))
+                          (merge-pathnames plan-pathname))))
+    (when verbose (pprint command stream))
+    (let ((str (uiop:run-program command)))
+      (when verbose (pprint str stream))
+      (ppcre:scan "Plan valid" str))))
 
 (macrolet (($ (&rest args)
-             `(remove #\Newline
-                      (eazy-process:shell-command ,@args :verbose verbose))))
+             `(uiop:run-program ,@args :output '(:string :stripped t))))
 
   @export
   (defun fd-translate (domain problem &key verbose)

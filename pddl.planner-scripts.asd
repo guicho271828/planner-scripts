@@ -18,7 +18,7 @@
   :version "0.1"
   :author "guicho"
   :license "LLGPL"
-  :depends-on (:pddl :eazy-process :trivial-signal :trivia.ppcre
+  :depends-on (:pddl :trivial-signal :trivia.ppcre
                      :cl-rlimit)
   :pathname "src/"
   :components ((:file :test-problem)
