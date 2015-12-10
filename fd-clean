@@ -7,19 +7,15 @@
 ################################################################
 #### main
 
-# echo $FD_DIR
-
 find-fd-py (){
-    fdscript=$(find $FD_DIR -name "fast-downward.py")
-    [[ -z $fdscript ]]
+    find $1 -name "fast-downward.py"
 }
 
 find-fd-upward (){
     echo "finding FD installation from $1 ..."
     if [[ -d $1/downward ]]
     then
-        FD_DIR=$(readlink -ef $1/downward)
-        find-fd-py
+        fdscript=$(readlink -ef $(find-fd-py $1/downward))
     else
         if [[ $1 == / ]]
         then
@@ -31,10 +27,7 @@ find-fd-upward (){
     fi
 }
 
-if find-fd-py
-then
-    find-fd-upward $(dirname $(readlink -ef $0))
-fi
+find-fd-upward $(dirname $(readlink -ef $0))
 
 plan(){
     echo $(whoami)@$(hostname)
