@@ -14,14 +14,14 @@
      (asdf:system-source-directory 
       :pddl.planner-scripts))))
 
-(defvar *default-fd-dir* (search-fd))
-
 (defun fd-relative-pathname (path)
-  (merge-pathnames
-   path
-   (truename
-    (or (uiop:getenv "FD_DIR")
-        *default-fd-dir*))))
+  (let ((path (merge-pathnames
+               path
+               (truename
+                (or (uiop:getenv "FD_DIR")
+                    (search-fd))))))
+    (assert (probe-file path))
+    path))
 
 @export
 (defun validate-plan (domain-pathname
@@ -31,13 +31,15 @@
                         verbose
                         (stream *standard-output*))
   (let* ((command (format nil "~a ~:[~;-v~] ~a ~a ~a"
-                          (fd-relative-pathname "src/validate")
+                          (handler-case (fd-relative-pathname "validate")
+                            (error ()
+                               (fd-relative-pathname "src/validate")))
                           verbose
                           (merge-pathnames domain-pathname)
                           (merge-pathnames problem-pathname)
                           (merge-pathnames plan-pathname))))
     (when verbose (pprint command stream))
-    (let ((str (uiop:run-program command)))
+    (let ((str (uiop:run-program command :output :string)))
       (when verbose (pprint str stream))
       (ppcre:scan "Plan valid" str))))
 
@@ -51,7 +53,9 @@
          (when verbose (princ str)))
        ($ (format nil "cd ~a; ~a ~a ~a"
                   tmp
-                  (fd-relative-pathname "src/translate/translate.py")
+                  (handler-case (fd-relative-pathname "translate/translate.py")
+                    (error ()
+                      (fd-relative-pathname "src/translate/translate.py")))
                   (merge-pathnames domain)
                   (merge-pathnames problem))))
       (merge-pathnames "output.sas" tmp)))
@@ -64,6 +68,8 @@
            (when verbose (princ str)))
          ($ (format nil "cd ~a; ~a"
                     tmp
-                    (fd-relative-pathname "src/preprocess/preprocess"))
+                    (handler-case (fd-relative-pathname "preprocess/preprocess")
+                      (error ()
+                        (fd-relative-pathname "src/preprocess/preprocess"))))
             :input s))
         (merge-pathnames "output" tmp)))))
