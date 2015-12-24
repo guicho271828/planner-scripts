@@ -105,16 +105,16 @@ do
     trap "interrupt $sig" $sig
 done 
 trap "finalize" EXIT
-echo "limit.sh($$): removing"
+vecho "limit.sh($$): removing"
 while [[ -e $cgcpu || -e $cgmem ]]
 do
     rmdir $($VERBOSE && echo -v) $cgcpu $cgmem
 done
-echo "limit.sh($$): ensured no cgdir present."
-echo "limit.sh($$): Making cgdir."
+vecho "limit.sh($$): ensured no cgdir present."
+vecho "limit.sh($$): Making cgdir."
 mkdir $($VERBOSE && echo -v) -p $cgcpu
 mkdir $($VERBOSE && echo -v) -p $cgmem
-echo "limit.sh($$): Configuring cgdir."
+vecho "limit.sh($$): Configuring cgdir."
 echo 0 > $cgmem/memory.swappiness
 echo 1 > $cgmem/memory.use_hierarchy
 if [[ $mem -gt 0 ]]
