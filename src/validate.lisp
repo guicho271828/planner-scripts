@@ -41,7 +41,8 @@
     (when verbose (pprint command stream))
     (let ((str (uiop:run-program command :output :string)))
       (when verbose (pprint str stream))
-      (ppcre:scan "Plan valid" str))))
+      (when (ppcre:scan "Plan valid" str)
+        t))))
 
 (macrolet (($ (&rest args)
              `(uiop:run-program ,@args :output '(:string :stripped t))))
