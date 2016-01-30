@@ -165,7 +165,7 @@
     (when complete
       (format t "~&Problem UNSAT"))
     (when (and (not plans) (not complete))
-      (signal 'plan-not-found))
+      (warn 'plan-not-found))
     (values
      plans
      (let ((time (common-time problem)))
