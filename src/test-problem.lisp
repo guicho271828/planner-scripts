@@ -40,8 +40,9 @@
   (:report (lambda (c s)
              (with-slots (problem-path domain-path) c
                 (format s "Failed to find a plan! ~a"
-                        (uiop:pathname-directory-pathname
-                         problem-path))))))
+                        (ignore-errors
+                          (uiop:pathname-directory-pathname
+                           problem-path)))))))
 
 ;; http://www.ymeme.com/slurping-a-file-common-lisp-83.html
 (defun slurp (stream)
