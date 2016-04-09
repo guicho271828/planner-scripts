@@ -41,7 +41,7 @@ plan(){
     md5=$(cat domain.pddl problem.pddl | md5sum | cut -d' ' -f1)
     
     (
-        flock -n 9
+        flock 9
         if [ -f $pc/$md5 ]
         then
             echo "reusing the preprocess output : $pc/$md5"
