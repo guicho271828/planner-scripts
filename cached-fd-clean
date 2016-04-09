@@ -42,23 +42,20 @@ plan(){
     
     (
         flock -n 9
-        if [ -f $tc/$md5 ]
-        then
-            echo "reusing the translation output : $tc/$md5"
-            cp $tc/$md5 output.sas
-        else
-            echodo $fdscript --translate $log_options domain.pddl problem.pddl \
-                && cp output.sas $tc/$md5
-        fi
-    ) 9>$tc/$md5.lock
-
-    (
-        flock -n 9
         if [ -f $pc/$md5 ]
         then
             echo "reusing the preprocess output : $pc/$md5"
             cp $pc/$md5 output
         else
+            if [ -f $tc/$md5 ]
+            then
+                echo "reusing the translation output : $tc/$md5"
+                cp $tc/$md5 output.sas
+            else
+                echodo $fdscript --translate $log_options domain.pddl problem.pddl \
+                    && cp output.sas $tc/$md5
+            fi
+            
             echodo $fdscript --preprocess $log_options output.sas \
                 && cp output $pc/$md5
         fi
