@@ -39,7 +39,7 @@ plan(){
     echo $(whoami)@$(hostname)
     OPTIONS=${OPTIONS:-"--search astar(lmcut())"}
     md5=$(cat domain.pddl problem.pddl | md5sum | cut -d' ' -f1)
-    
+    echo "md5 : $md5"
     (
         flock 9
         if [ -f $pc/$md5 ]
