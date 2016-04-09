@@ -38,22 +38,31 @@ log_options=$(if $VERBOSE ; then echo "--log-level info" ; else echo "--log-leve
 plan(){
     echo $(whoami)@$(hostname)
     OPTIONS=${OPTIONS:-"--search astar(lmcut())"}
-    
     md5=$(cat domain.pddl problem.pddl | md5sum | cut -d' ' -f1)
-    if [ -f $tc/$md5 ]
-    then
-        cp $tc/$md5 output.sas
-    else
-        echodo $fdscript --translate $log_options domain.pddl problem.pddl \
-            && cp output.sas $tc/$md5
-    fi
-    if [ -f $pc/$md5 ]
-    then
-        cp $pc/$md5 output
-    else
-        echodo $fdscript --preprocess $log_options output.sas \
-            && cp output $pc/$md5
-    fi
+    
+    (
+        flock -n 9
+        if [ -f $tc/$md5 ]
+        then
+            cp $tc/$md5 output.sas
+        else
+            echodo $fdscript --translate $log_options domain.pddl problem.pddl \
+                && cp output.sas $tc/$md5
+        fi
+    ) 9>$tc/$md5.lock
+
+    (
+        flock -n 9
+        if [ -f $pc/$md5 ]
+        then
+            flock -u 9
+            cp $pc/$md5 output
+        else
+            echodo $fdscript --preprocess $log_options output.sas \
+                && cp output $pc/$md5
+        fi
+    ) 9>$pc/$md5.lock
+    
     echodo $fdscript --search --validate \
         --plan-file $probdir/$probname.plan $log_options output \
         $OPTIONS
