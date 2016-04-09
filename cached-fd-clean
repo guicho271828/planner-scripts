@@ -44,6 +44,7 @@ plan(){
         flock -n 9
         if [ -f $tc/$md5 ]
         then
+            echo "reusing the translation output : $tc/$md5"
             cp $tc/$md5 output.sas
         else
             echodo $fdscript --translate $log_options domain.pddl problem.pddl \
@@ -55,7 +56,7 @@ plan(){
         flock -n 9
         if [ -f $pc/$md5 ]
         then
-            flock -u 9
+            echo "reusing the preprocess output : $pc/$md5"
             cp $pc/$md5 output
         else
             echodo $fdscript --preprocess $log_options output.sas \
@@ -64,6 +65,7 @@ plan(){
     ) 9>$pc/$md5.lock
     
     echodo $fdscript --search --validate \
+        --search-time-limit 30 \
         --plan-file $probdir/$probname.plan $log_options output \
         $OPTIONS
 }
