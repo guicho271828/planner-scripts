@@ -62,7 +62,6 @@ plan(){
     ) 9>$pc/$md5.lock
     
     echodo $fdscript --search --validate \
-        --search-time-limit 30 \
         --plan-file $probdir/$probname.plan $log_options output \
         $OPTIONS
 }
