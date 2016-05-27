@@ -1,5 +1,5 @@
 [submodule "dump-action"]
 	path = dump-action
-	url = git@github.com:guicho271828/downward-fixed-build.git
+	url = https://github.com/guicho271828/downward-fixed-build.git
 	branch = dump-action
         update = rebase
