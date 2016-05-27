@@ -3,3 +3,6 @@
 	url = https://github.com/guicho271828/downward-fixed-build.git
 	branch = dump-action
         update = rebase
+[submodule "timeout"]
+	path = timeout
+	url = https://github.com/pshved/timeout.git
