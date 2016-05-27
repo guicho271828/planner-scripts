@@ -2,8 +2,6 @@
 
 . ../test-common.sh
 
-../cgroup-setup.sh
-
 # quick tests
 ../clean.sh
 

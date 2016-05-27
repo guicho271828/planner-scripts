@@ -88,7 +88,8 @@
            *limitsh*))
   (let ((problem (pathname problem))
         (domain (pathname domain))
-        (*print-case* :downcase))
+        (*print-case* :downcase)
+        (stat-stream (make-string-output-stream)))
     (fresh-line)
     (restart-case
         (trivial-signal:signal-handler-bind ((:int #'%signal)
@@ -105,41 +106,45 @@
                                       -- ,name ,problem ,domain))
                             :ignore-error-status t
                             :output t
-                            :error-output t)
+                            ;; see limit.sh
+                            :error-output (make-broadcast-stream *error-output* stat-stream))
           (invoke-restart
            (find-restart 'finish)))
       (finish ()
         (when *verbose* (format t "~&Running finalization"))
-        (find-plans-common domain problem)))))
+        (find-plans-common domain problem
+                           (search-stat (get-output-stream-string stat-stream)))))))
+
+(defun search-stat (str)
+  (iter (for line in-stream (make-string-input-stream str) using #'read-line)
+        (match line
+          ((ppcre "LIMIT_SH (.*)" stat)
+           ;; LIMIT_SH TIMEOUT CPU 1.07 MEM 4448 MAXMEM 4448 STALE 0 MAXMEM_RSS 760
+           (return-from search-stat-line
+             (iter (for elem in-stream (make-string-input-stream stat))
+                   (collect elem)))))
+        (finally
+         (warn "no LIMIT_SH found!")
+         nil)))
 
 ;;;; reading the results
 ;; limit.sh writes to a specific output file, so read the result.
 ;; the `stream' argument in test-problem merely provides a verbose
 ;; printing, and the output result is not used in these result analysers.
 
-(defun common-memory (problem)
-  (or
-   (handler-case
-       (with-open-file (s (make-pathname :type "stat" :defaults problem))
-         (iter (for line = (read-line s nil nil))
-               (while line)
-               (match line
-                 ((trivia.ppcre:ppcre ".*maxmem\\s+([.0-9]+)" num)
-                  (leave (parse-integer num :junk-allowed t))))))
-     (file-error () nil))
-   -1))
+(defun common-memory (stat)
+  "return the max resident set memory in kB"
+  (match (getf 'MAXMEM_RSS stat)
+    (-1 0)
+    ((and it (>= 0)) it)
+    (_ -1)))
 
 (defun common-time (problem)
-  (or
-   (handler-case
-       (with-open-file (s (make-pathname :type "stat" :defaults problem))
-         (iter (for line = (read-line s nil nil))
-               (while line)
-               (match line
-                 ((trivia.ppcre:ppcre ".*cputime\\s+([.0-9]+)" num)
-                  (leave (parse-integer num :junk-allowed t))))))
-     (file-error () nil))
-   -1))
+  "return the runtime in sec"
+  (match (getf 'CPU stat)
+    (-1 0)
+    ((and it (>= 0)) it)
+    (_ -1)))
 
 (defun common-complete (problem)
   (probe-file
@@ -159,7 +164,7 @@
          :test #'string= :key #'namestring)
         #'string> :key #'pathname-type))
 
-(defun find-plans-common (domain problem)
+(defun find-plans-common (domain problem stat)
   @ignorable domain
   (let ((plans (common-plans problem))
         (complete (common-complete problem)))
@@ -169,8 +174,6 @@
       (warn 'plan-not-found))
     (values
      plans
-     (let ((time (common-time problem)))
-       (format t "~&Time spent: ~,1f" (float (/ time 1000)))
-       time)
-     (common-memory problem)
+     (common-time stat)
+     (common-memory stat)
      complete)))

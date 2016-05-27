@@ -1,7 +1,5 @@
 #!/bin/bash
 
-../cgroup-setup.sh
-
 ## metric ff
 # this should finish normally (because it is easy)
 ../clean.sh

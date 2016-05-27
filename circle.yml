@@ -1,6 +1,3 @@
-dependencies:
-  post:
-    - sudo apt-get install cgroup-bin
 
 test:
   override:

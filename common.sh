@@ -52,7 +52,6 @@ _interrupt (){
 _finalize (){
     $VERBOSE && echo "common.sh($$): forcibly killing all subprocesses"
     $SCRDIR/killall.sh $pid -9
-    cp $STAT $probdir/$probname.stat
     cp log $probdir/$probname.log
     negatively-proven && touch $probdir/$probname.negative
     finalize                    # call planner-specific finalizer
