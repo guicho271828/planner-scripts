@@ -118,11 +118,12 @@
 (defun search-stat (str)
   (iter (for line in-stream (make-string-input-stream str) using #'read-line)
         (match line
-          ((ppcre "LIMIT_SH (.*)" stat)
+          ((trivia.ppcre:ppcre "LIMIT_SH (.*)" stat)
            ;; LIMIT_SH TIMEOUT CPU 1.07 MEM 4448 MAXMEM 4448 STALE 0 MAXMEM_RSS 760
-           (return-from search-stat-line
-             (iter (for elem in-stream (make-string-input-stream stat))
-                   (collect elem)))))
+           (return-from search-stat
+             (cdr
+              (iter (for elem in-stream (make-string-input-stream stat))
+                    (collect elem))))))
         (finally
          (warn "no LIMIT_SH found!")
          nil)))
@@ -134,14 +135,14 @@
 
 (defun common-memory (stat)
   "return the max resident set memory in kB"
-  (match (getf 'MAXMEM_RSS stat)
+  (match (getf stat 'MAXMEM_RSS)
     (-1 0)
     ((and it (>= 0)) it)
     (_ -1)))
 
-(defun common-time (problem)
+(defun common-time (stat)
   "return the runtime in sec"
-  (match (getf 'CPU stat)
+  (match (getf stat 'CPU)
     (-1 0)
     ((and it (>= 0)) it)
     (_ -1)))
