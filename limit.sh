@@ -17,8 +17,8 @@ export DIR=$PWD
 export VERBOSE=false
 export DEBUG=false
 
-mem=-1
-time=-1
+mem=
+time=
 export ITERATED=false
 
 while getopts ":-vido:t:m:" opt; do {
@@ -34,11 +34,13 @@ while getopts ":-vido:t:m:" opt; do {
             i)  # use iterated run if possible
                 ITERATED=true ;;
             t)  # hard limit of the execution time, in sec.
-                time=${OPTARG:-$time} ;
-                [[ $time == 'unlimited' ]] && time=-1 ;;
+                time=${OPTARG} ;
+                [[ $time == -1 ]] && time= ;
+                [[ $time == 'unlimited' ]] && time= ;;
             m)  # limit on the memory usage, in kB.
-                mem=${OPTARG:-$mem};
-                [[ $mem == 'unlimited' ]] && mem=-1 ;;
+                mem=${OPTARG};
+                [[ $mem == -1 ]] && mem= ;
+                [[ $mem == 'unlimited' ]] && mem= ;;
             -)  break ;;
             \?) OPT_ERROR=1; break;;
             * ) echo "limit.sh($$): unsupported option $opt" ;;
@@ -87,13 +89,21 @@ mkdir $($VERBOSE && echo -v) -p /tmp/newtmp
 export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
 command=$(readlink -ef "$SCRDIR/$1") ; shift ;
 
-vecho "limit.sh($$): mem:${mem}kB, time:${time}sec"
+vecho "limit.sh($$): mem: ${mem:-unlimited} kB, time: ${time:-unlimited} sec"
 vecho "limit.sh($$): running at $TMP"
 vecho "limit.sh($$): command to execute: $command"
 vecho "limit.sh($$): current planner options : $OPTIONS"
 vecho "limit.sh($$): note: time precision is 0.5 sec"
 
-TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 2 -c --memlimit-rss $mem -t $time $command $@
+vecho TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 2 -c \
+    $([ -z $mem  ] || echo "--memlimit-rss $mem") \
+    $([ -z $time ] || echo "-t            $time") \
+    $command $@
+
+TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 2 -c \
+    $([ -z $mem  ] || echo "--memlimit-rss $mem") \
+    $([ -z $time ] || echo "-t            $time") \
+    $command $@
 
 exitstatus=$?
 case $exitstatus in
