@@ -87,7 +87,7 @@ mkdir $($VERBOSE && echo -v) -p /tmp/newtmp
 export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
 command=$(readlink -ef "$SCRDIR/$1") ; shift ;
 
-vecho "limit.sh($$): mem:$(($mem/1000))MB, time:${time}sec"
+vecho "limit.sh($$): mem:${mem}kB, time:${time}sec"
 vecho "limit.sh($$): running at $TMP"
 vecho "limit.sh($$): command to execute: $command"
 vecho "limit.sh($$): current planner options : $OPTIONS"
