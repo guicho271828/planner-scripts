@@ -5,4 +5,4 @@
         update = rebase
 [submodule "timeout"]
 	path = timeout
-	url = https://github.com/pshved/timeout.git
+	url = https://github.com/guicho271828/timeout.git

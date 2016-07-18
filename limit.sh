@@ -95,12 +95,12 @@ vecho "limit.sh($$): command to execute: $command"
 vecho "limit.sh($$): current planner options : $OPTIONS"
 vecho "limit.sh($$): note: time precision is 0.5 sec"
 
-vecho TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 2 -c \
+vecho TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 0.1 -c \
     $([ -z $mem  ] || echo "--memlimit-rss $mem") \
     $([ -z $time ] || echo "-t            $time") \
     $command $@
 
-TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 2 -c \
+TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 0.1 -c \
     $([ -z $mem  ] || echo "--memlimit-rss $mem") \
     $([ -z $time ] || echo "-t            $time") \
     $command $@
