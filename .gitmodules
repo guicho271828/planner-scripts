@@ -6,3 +6,5 @@
 [submodule "timeout"]
 	path = timeout
 	url = https://github.com/guicho271828/timeout.git
+	branch = master
+        update = rebase
