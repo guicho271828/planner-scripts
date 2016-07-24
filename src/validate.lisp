@@ -25,10 +25,11 @@
 
 (defun fd-relative-pathname* (&rest paths)
   "returns the first match"
-  (iter (for path in paths)
-        (handler-case
-            (leave (fd-relative-pathname path))
-          (error ()))))
+  (or (iter (for path in paths)
+            (handler-case
+                (leave (fd-relative-pathname path))
+              (error ())))
+      (error "validator not found!")))
 
 @export
 (defun validate-plan (domain-pathname
