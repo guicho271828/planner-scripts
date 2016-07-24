@@ -29,7 +29,7 @@
             (handler-case
                 (leave (fd-relative-pathname path))
               (error ())))
-      (error "validator not found!")))
+      (warn "validator not found!")))
 
 @export
 (defun validate-plan (domain-pathname
@@ -39,10 +39,11 @@
                         verbose
                         (stream *standard-output*))
   (let* ((command (format nil "~a ~:[~;-v~] ~a ~a ~a"
-                          (fd-relative-pathname*
-                           "builds/release32/bin/validate"
-                           "src/validate"
-                           "validate")
+                          (or (fd-relative-pathname*
+                               "builds/release32/bin/validate"
+                               "src/validate"
+                               "validate")
+                              (return-from validate-plan t))
                           verbose
                           (merge-pathnames domain-pathname)
                           (merge-pathnames problem-pathname)
