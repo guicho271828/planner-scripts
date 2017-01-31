@@ -33,9 +33,8 @@ log_options=$(if $VERBOSE ; then echo "--log-level info" ; else echo "--log-leve
 
 plan(){
     echo $(whoami)@$(hostname)
-    time echodo $fdscript --preprocess $log_options problem.pddl
     time echodo $fdscript --search --validate --alias lama-first \
-        --plan-file $probdir/$probname.plan $log_options output
+        --plan-file $probdir/$probname.plan $log_options problem.pddl
 }
 
 finalize (){
