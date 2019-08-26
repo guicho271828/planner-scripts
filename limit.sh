@@ -85,8 +85,8 @@ do
 done 
 trap "finalize" EXIT
 
-mkdir $($VERBOSE && echo -v) -p /tmp/newtmp
-export TMP=$(mktemp -d --tmpdir=/tmp/newtmp limit.XXXXXXXXXX )
+mkdir $($VERBOSE && echo -v) -p /tmp/$(whoami)
+export TMP=$(mktemp -d --tmpdir=/tmp/$(whoami) limit.XXXXXXXXXX )
 command=$(readlink -ef "$SCRDIR/$1") ; shift ;
 
 vecho "limit.sh($$): mem: ${mem:-unlimited} kB, time: ${time:-unlimited} sec"
