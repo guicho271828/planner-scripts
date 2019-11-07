@@ -27,10 +27,15 @@ test-non-ff (){
     # success ../limit.sh -t 1 -d -- $1  p03.pddl domain.pddl
 
     # what happens when there are no solution?
-    fail ../limit.sh -d -- $1 unsolvable.pddl domain.pddl
+    fail ../limit.sh -d -t 1 -- $1 unsolvable.pddl domain.pddl
 
     success test -e unsolvable.negative
 }
+
+for sig in SIGINT SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
+do
+    trap "echo received $sig" $sig
+done
 
 dir=$(dirname $0)
 cd $dir
