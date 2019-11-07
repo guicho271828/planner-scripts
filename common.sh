@@ -1,4 +1,3 @@
-#!/bin/bash
 
 . $SCRDIR/util.sh
 
