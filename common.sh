@@ -80,7 +80,7 @@ _finalize (){
     exit $status
 }
 
-for sig in SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
+for sig in SIGINT SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
 do
     trap "_interrupt $sig" $sig
 done
