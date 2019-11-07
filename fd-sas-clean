@@ -29,12 +29,10 @@ find-fd-upward (){
 
 find-fd-upward $(dirname $(readlink -ef $0))
 
-log_options=$(if $VERBOSE ; then echo "--log-level info" ; else echo "--log-level warning" ; fi)
-
 plan(){
     echo $(whoami)@$(hostname)
     time echodo $fdscript --build release64 --search --validate \
-         --plan-file $probdir/$probname.plan $log_options problem.pddl $OPTIONS
+         --plan-file $probdir/$probname.plan --log-level info problem.pddl $OPTIONS
 }
 
 finalize (){

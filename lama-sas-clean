@@ -29,8 +29,6 @@ find-fd-upward (){
 
 find-fd-upward $(dirname $(readlink -ef $0))
 
-log_options=$(if $VERBOSE ; then echo "--log-level info" ; else echo "--log-level warning" ; fi)
-
 plan(){
     echo $(whoami)@$(hostname)
     time echodo $fdscript --search --validate --alias lama-first \

@@ -31,9 +31,7 @@ find-fd-upward $(dirname $(readlink -ef $0))
 
 tc=$HOME/.fd-cache/translate/
 pc=$HOME/.fd-cache/preprocess/
-mkdir -pv $pc $tc
-
-log_options=$(if $VERBOSE ; then echo "--log-level info" ; else echo "--log-level warning" ; fi)
+mkdir -p $pc $tc
 
 plan(){
     echo $(whoami)@$(hostname)
@@ -52,17 +50,17 @@ plan(){
                 echo "reusing the translation output : $tc/$md5"
                 cp $tc/$md5 output.sas
             else
-                echodo $fdscript --translate $log_options domain.pddl problem.pddl \
+                echodo $fdscript --translate --log-level info domain.pddl problem.pddl \
                     && cp output.sas $tc/$md5
             fi
             
-            echodo $fdscript --preprocess $log_options output.sas \
+            echodo $fdscript --preprocess --log-level info output.sas \
                 && cp output $pc/$md5
         fi
     ) 9>$pc/$md5.lock
     
     echodo $fdscript --search --validate \
-        --plan-file $probdir/$probname.plan $log_options output \
+        --plan-file $probdir/$probname.plan --log-level info output \
         $OPTIONS
 }
 

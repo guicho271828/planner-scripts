@@ -49,7 +49,7 @@ neg=$probdir/$probname.negative
 
 ################################################################
 #### temporary directory
-mkdir $($VERBOSE && echo -v) -p /tmp/$(whoami)
+mkdir -p /tmp/$(whoami)
 tmp=$(mktemp -d --tmpdir=/tmp/$(whoami))
 
 ################################################################
@@ -62,18 +62,18 @@ _interrupt (){
     exit 1
 }
 _finalize (){
-    $VERBOSE && echo "common.sh($$): forcibly killing all subprocesses"
+    echo "common.sh($$): forcibly killing all subprocesses"
     $SCRDIR/killall.sh $pid -9
     negatively-proven && touch $neg
     finalize                    # call planner-specific finalizer
-    vecho $'\x1b[34;1m'--------------------------------------------------------
-    vecho Result:
-    $VERBOSE && report-results 2> /dev/null
-    vecho --------------------------------------------------------$'\x1b[0m'
+    echo $'\x1b[34;1m'--------------------------------------------------------
+    echo Result:
+    report-results 2> /dev/null
+    echo --------------------------------------------------------$'\x1b[0m'
     plan-found
     status=$?
     
-    $DEBUG || rm $($VERBOSE && echo -v) -rf $tmp
+    $DEBUG || rm -rf $tmp
     $DEBUG && echo "common.sh($$): Debug flag is on, $tmp not removed!"
     
     exit $status

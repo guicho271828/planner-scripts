@@ -29,16 +29,14 @@ find-fd-upward (){
 
 find-fd-upward $(dirname $(readlink -ef $0))
 
-log_options=$(if $VERBOSE ; then echo "--log-level info" ; else echo "--log-level warning" ; fi)
-
 plan(){
     echo $(whoami)@$(hostname)
     OPTIONS=${OPTIONS:-"--search astar(lmcut())"}
 
-    time echodo $fdscript --build release64 --translate $log_options domain.pddl problem.pddl
-    time echodo $fdscript --build release64 --preprocess $log_options output.sas > output
+    time echodo $fdscript --build release64 --translate --log-level info domain.pddl problem.pddl
+    time echodo $fdscript --build release64 --preprocess --log-level info output.sas > output
     time echodo $fdscript --build release64 --search --validate \
-        --plan-file $probdir/$probname.plan $log_options output \
+        --plan-file $probdir/$probname.plan --log-level info output \
         $OPTIONS
 }
 

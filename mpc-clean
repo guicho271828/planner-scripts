@@ -10,13 +10,13 @@ bin=$SCRDIR/MpC
 #### main
 
 plan(){
-    vecho $(whoami)@$(hostname)
-    vechodo $bin domain.pddl problem.pddl -Q $OPTIONS
+    echo $(whoami)@$(hostname)
+    echodo $bin domain.pddl problem.pddl -Q $OPTIONS
 }
 
 finalize (){
     awk '/^[0-9]+ +:.*/{ y=match($0,/\(.*\)/); print substr($0,RSTART,RLENGTH)}' $log > plan
-    [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
+    [[ $(cat plan | wc -l) -gt 0 ]] && cp plan $probdir/$probname.plan
 }
 
 negatively-proven (){

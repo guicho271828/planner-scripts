@@ -32,14 +32,14 @@ find-planner-upward $(dirname $(readlink -ef $0))
 
 # Run the planner; exit status will be the status of the entire script
 plan(){
-    vecho $(whoami)@$(hostname)
-    vechodo ln -s -t . $planner_dir/*
-    vechodo ./plan domain.pddl problem.pddl soln
+    echo $(whoami)@$(hostname)
+    echodo ln -s -t . $planner_dir/*
+    echodo ./plan domain.pddl problem.pddl soln
 }
 
 # Copy the plan files
 finalize (){
-    ls soln* && vcp $(ls soln* | tail -n 1) $probdir/$probname.plan
+    ls soln* && cp $(ls soln* | tail -n 1) $probdir/$probname.plan
     rm soln*
 }
 

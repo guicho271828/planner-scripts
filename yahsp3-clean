@@ -10,8 +10,8 @@ bin="$SCRDIR/cpt_yahsp3_64 -y 1"
 #### main
 
 plan(){
-    vecho $(whoami)@$(hostname)
-    vechodo $bin $(if $VERBOSE ; then echo "-v 3" ; fi) $OPTIONS \
+    echo $(whoami)@$(hostname)
+    echodo $bin -v 3 $OPTIONS \
         -f problem.pddl -o domain.pddl --out soln
 }
 

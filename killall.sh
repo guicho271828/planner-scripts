@@ -2,9 +2,7 @@
 
 if [[ $2 == "" ]]
 then
-    $VERBOSE && cat <<EOF
-usage: killall.sh PID KILLOPTIONS
-EOF
+    echo "usage: killall.sh PID KILLOPTIONS"
     exit 1
 fi
 
@@ -12,7 +10,6 @@ target=$1
 shift 1
 children=$(pgrep -P $target)
 
-$VERBOSE && pstree -pl $target
 for pid in $children
 do
     if [[ $pid != $$ ]]
@@ -21,5 +18,5 @@ do
     fi
 done
 
-vecho "kill $@ $target"
+echo "kill $@ $target"
 kill $@ $target 2> /dev/null

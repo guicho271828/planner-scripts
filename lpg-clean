@@ -11,13 +11,13 @@ bin=$SCRDIR/lpg
 #### main
 
 plan(){
-    vecho $(whoami)@$(hostname)
-    vechodo $bin $OPTIONS -f problem.pddl -o domain.pddl -speed -out problem
+    echo $(whoami)@$(hostname)
+    echodo $bin $OPTIONS -f problem.pddl -o domain.pddl -speed -out problem
 }
 
 finalize (){
     awk '/^[0-9]+:.*/{ y=match($0,/\(.*\)/); print substr($0,RSTART,RLENGTH)}' problem.SOL > plan
-    [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
+    [[ $(cat plan | wc -l) -gt 0 ]] && cp plan $probdir/$probname.plan
 }
 
 negatively-proven (){
