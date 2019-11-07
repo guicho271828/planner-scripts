@@ -21,11 +21,13 @@ fi
 
 problem=$1
 probname=$(basename $problem .pddl)
-probdir=$(dirname $problem)
+probdir=$(readlink -ef $(dirname $problem))
+problem=$probdir/$probname.pddl
 
 if [[ $2 != "" ]]
 then
     domain=$2
+    domain=$(readlink -ef $(dirname $domain))/$(basename $domain)
 else
     domain=$probdir/domain.pddl
 fi
@@ -42,8 +44,8 @@ fi
 ################################################################
 #### output files
 
-log=$probdir/$probname.planner-log
-err=$probdir/$probname.planner-err
+log=$probdir/$probname.log
+err=$probdir/$probname.err
 neg=$probdir/$probname.negative
 
 ################################################################
@@ -91,4 +93,4 @@ cd $tmp
 
 ln -s $problem problem.pddl
 ln -s $domain domain.pddl
-plan > $log 2> $err
+plan >(tee $log) 2>(tee $err >&2)
