@@ -32,11 +32,13 @@ test-non-ff (){
     success test -e unsolvable.negative
 }
 
+dir=$(dirname $0)
+cd $dir
 
 #  mff doesnt work at all
 for planner in cached-fd fd yahsp-mco jasper mercury ff lpg marvin1 marvin2 mpc mp m probe yahsp3
 do
-    test-non-ff $planner-clean
+    test-non-ff ../$planner-clean
 done
 
 # section marvin1-typetest
