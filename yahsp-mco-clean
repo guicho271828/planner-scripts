@@ -1,5 +1,6 @@
 #!/bin/bash
 #-*- mode:sh -*-
+SCRDIR=$(dirname $(readlink -ef $0))
 
 
 name=seq-mco-yahsp3-mt
@@ -70,5 +71,3 @@ plan-found (){
 
 # required
 . $SCRDIR/common.sh
-
-

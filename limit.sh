@@ -4,12 +4,11 @@ echo "Running limit.sh($$): $@"
 
 # ********  Exported variables: **********
 # 
-# SCRDIR -- script dir. the dir of this file
 # DIR -- original PWD when this file is invoked
 # DEBUG -- debug flag, disable removing tmp dir when enabled
 # TMP -- temprary working directory for the planner.
 
-export SCRDIR=$(dirname $(readlink -ef $0))
+SCRDIR=$(dirname $(readlink -ef $0))
 . $SCRDIR/util.sh
 export OPTIONS=
 export DIR=$PWD

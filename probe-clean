@@ -1,5 +1,6 @@
 #!/bin/bash
 #-*- mode:sh -*-
+SCRDIR=$(dirname $(readlink -ef $0))
 
 ################################################################
 #### default options
