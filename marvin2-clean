@@ -36,16 +36,16 @@ finalize (){
     # 5: (drop hoist1 crate1 pallet1 distributor0) [1]
     # 6: (unload hoist2 crate0 truck1 distributor1) [1]
     # 7: (drop hoist2 crate0 pallet2 distributor1) [1]
-    grep "^[0-9]\+: ([^)]*) \[[0-9]*\]" log | cut -d " " -f 2- | sed -e "s/\[[0-9]\+\]//g" > plan
+    grep "^[0-9]\+: ([^)]*) \[[0-9]*\]" $log | cut -d " " -f 2- | sed -e "s/\[[0-9]\+\]//g" > plan
     [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
 }
 
 negatively-proven (){
-    grep "Could not find plan by exhaustive search" log
+    grep "Could not find plan by exhaustive search" $log
 }
 
 report-results (){
-    grep "MakeSpan" log
+    grep "MakeSpan" $log
 }
 
 plan-found (){

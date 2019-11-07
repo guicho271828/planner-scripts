@@ -21,8 +21,8 @@ finalize (){
 }
 
 negatively-proven (){
-    grep "unsolvable" log || \
-        grep "No plan will solve it" log
+    grep "unsolvable" $log || \
+        grep "No plan will solve it" $log
 }
 
 report-results (){

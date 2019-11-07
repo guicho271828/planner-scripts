@@ -15,13 +15,13 @@ plan(){
 }
 
 finalize (){
-    awk '/^[0-9]+ +:.*/{ y=match($0,/\(.*\)/); print substr($0,RSTART,RLENGTH)}' log > plan
+    awk '/^[0-9]+ +:.*/{ y=match($0,/\(.*\)/); print substr($0,RSTART,RLENGTH)}' $log > plan
     [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
 }
 
 negatively-proven (){
-    grep "problem proven unsolvable" log || \
-        grep "No plan will solve it" log
+    grep "problem proven unsolvable" $log || \
+        grep "No plan will solve it" $log
 }
 
 report-results (){

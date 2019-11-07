@@ -38,7 +38,7 @@ finalize (){
 }
 
 negatively-proven (){
-    grep "Planning task not solvable" log
+    grep "Planning task not solvable" $log
 }
 
 report-results (){

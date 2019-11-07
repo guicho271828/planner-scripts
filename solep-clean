@@ -27,7 +27,7 @@ finalize (){
 }
 
 negatively-proven (){
-    grep "problem proven unsolvable" log
+    grep "problem proven unsolvable" $log
 }
 
 report-results (){

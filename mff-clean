@@ -21,13 +21,13 @@ plan(){
 }
 
 finalize (){
-    grep "^\(step\)\?\s*[0-9]\+: \(.*\)" log | cut -d: -f 2 | sed -e "s/^ \(.*\)/(\1)/g" > plan
+    grep "^\(step\)\?\s*[0-9]\+: \(.*\)" $log | cut -d: -f 2 | sed -e "s/^ \(.*\)/(\1)/g" > plan
     [[ $(cat plan | wc -l) -gt 0 ]] && vcp plan $probdir/$probname.plan
 }
 
 negatively-proven (){
-    grep "problem proven unsolvable" log || \
-        grep "No plan will solve it" log
+    grep "problem proven unsolvable" $log || \
+        grep "No plan will solve it" $log
 }
 
 report-results (){

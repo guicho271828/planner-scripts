@@ -42,11 +42,11 @@ finalize (){
 }
 
 negatively-proven (){
-    grep "Completely explored state space" log &> /dev/null
+    grep "Completely explored state space" $log &> /dev/null
 }
 
 report-results (){
-    awk "/Plan cost:/{print $2}" log | sort | head -n 1
+    awk "/Plan cost:/{print $2}" $log | sort | head -n 1
 }
 
 plan-found (){
