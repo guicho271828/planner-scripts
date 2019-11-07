@@ -22,6 +22,10 @@ find-fd-py (){
 }
 
 find-fd-upward (){
+    if [[ ! -z $fdscript ]]
+    then
+        return
+    fi
     echo "finding FD installation from $1 ..."
     if [[ -d $1/downward ]]
     then
