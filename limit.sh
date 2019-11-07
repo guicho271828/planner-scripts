@@ -12,7 +12,7 @@ echo "Running limit.sh($$): $@"
 
 export SCRDIR=$(dirname $(readlink -ef $0))
 . $SCRDIR/util.sh
-export OPTIONS
+export OPTIONS=
 export DIR=$PWD
 export VERBOSE=false
 export DEBUG=false
@@ -62,48 +62,16 @@ EOF
     }
 fi
 
-interrupt (){
-    target=$(pgrep -P $pid)
-    echo "limit.sh($$): received $1, killing subprocess $target with $1"
-    vechodo kill -s $1 $target
-    while ps -p $target &>/dev/null
-    do
-        sleep 0.5
-        pstree -pl $pid
-    done
-    echo "limit.sh($$): killed subprocess $target died"
-}
-
-finalize (){
-    $DEBUG || rm $($VERBOSE && echo -v) -rf $TMP
-    $DEBUG && echo "limit.sh($$): Debug flag is on, $TMP not removed!"
-}
-
-for sig in SIGHUP SIGQUIT SIGABRT SIGSEGV SIGTERM SIGXCPU SIGXFSZ
-do
-    trap "interrupt $sig" $sig
-done 
-trap "finalize" EXIT
-
-mkdir $($VERBOSE && echo -v) -p /tmp/$(whoami)
-export TMP=$(mktemp -d --tmpdir=/tmp/$(whoami) limit.XXXXXXXXXX )
-command=$(readlink -ef "$SCRDIR/$1") ; shift ;
-
 vecho "limit.sh($$): mem: ${mem:-unlimited} kB, time: ${time:-unlimited} sec"
 vecho "limit.sh($$): running at $TMP"
 vecho "limit.sh($$): command to execute: $command"
 vecho "limit.sh($$): current planner options : $OPTIONS"
 vecho "limit.sh($$): note: time precision is 0.5 sec"
 
-vecho TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 0.1 -c \
+vechodo TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 0.1 -c \
     $([ -z $mem  ] || echo "--memlimit-rss $mem") \
     $([ -z $time ] || echo "-t            $time") \
-    $command $@
-
-TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 0.1 -c \
-    $([ -z $mem  ] || echo "--memlimit-rss $mem") \
-    $([ -z $time ] || echo "-t            $time") \
-    $command $@
+    $@
 
 exitstatus=$?
 case $exitstatus in
