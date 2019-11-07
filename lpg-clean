@@ -12,7 +12,7 @@ bin=$SCRDIR/lpg
 
 plan(){
     echo $(whoami)@$(hostname)
-    echodo $bin $OPTIONS -f problem.pddl -o domain.pddl -speed -out problem
+    $bin $OPTIONS -f problem.pddl -o domain.pddl -speed -out problem
 }
 
 finalize (){

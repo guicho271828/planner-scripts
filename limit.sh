@@ -19,7 +19,7 @@ mem=
 time=
 export ITERATED=false
 
-while getopts ":-vido:t:m:" opt; do {
+while getopts ":-ido:t:m:" opt; do {
         case ${opt} in
             o)  # specifies the search option
                 OPTIONS=${OPTARG:-$OPTIONS} ;;
@@ -62,7 +62,7 @@ echo "limit.sh($$): command to execute: $command"
 echo "limit.sh($$): current planner options : $OPTIONS"
 echo "limit.sh($$): note: time precision is 0.5 sec"
 
-echodo TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 0.1 -c \
+TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 0.1 -c \
     $([ -z $mem  ] || echo "--memlimit-rss $mem") \
     $([ -z $time ] || echo "-t            $time") \
     $@

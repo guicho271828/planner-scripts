@@ -11,9 +11,9 @@ plan(){
     echo $(whoami)@$(hostname)
     OPTIONS=${OPTIONS:-"--search astar(lmcut())"}
 
-    time echodo $fdscript --translate --log-level info domain.pddl problem.pddl
-    time echodo $fdscript --preprocess --log-level info output.sas
-    time echodo $fdscript --search --validate $OPTIONS \
+    time $fdscript --translate --log-level info domain.pddl problem.pddl
+    time $fdscript --preprocess --log-level info output.sas
+    time $fdscript --search --validate $OPTIONS \
         --plan-file $probdir/$probname.plan --log-level info output \
         
 }

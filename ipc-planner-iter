@@ -33,8 +33,8 @@ find-planner-upward $(dirname $(readlink -ef $0))
 # Run the planner; exit status will be the status of the entire script
 plan(){
     echo $(whoami)@$(hostname)
-    echodo ln -s -t . $planner_dir/*
-    echodo ./plan domain.pddl problem.pddl soln
+    ln -s -t . $planner_dir/*
+    ./plan domain.pddl problem.pddl soln
 }
 
 # Copy the plan files

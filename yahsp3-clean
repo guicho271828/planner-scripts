@@ -11,7 +11,7 @@ bin="$SCRDIR/cpt_yahsp3_64 -y 1"
 
 plan(){
     echo $(whoami)@$(hostname)
-    echodo $bin -v 3 $OPTIONS \
+    $bin -v 3 $OPTIONS \
         -f problem.pddl -o domain.pddl --out soln
 }
 

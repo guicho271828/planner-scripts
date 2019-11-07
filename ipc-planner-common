@@ -33,7 +33,7 @@ find-planner-upward $(dirname $(readlink -ef $0))
 # Run the planner; exit status will be the status of the entire script
 plan(){
     echo $(whoami)@$(hostname)
-    echodo ln -s -t . $planner_dir/*
+    ln -s -t . $planner_dir/*
     finished_flag=$(basename $(mktemp --tmpdir=. __tmp__XXXXXXXXX))
     ( ./plan domain.pddl problem.pddl soln ; touch $finished_flag ) &
     planpid=$!

@@ -11,7 +11,7 @@ bin=$SCRDIR/Mp
 
 plan(){
     echo $(whoami)@$(hostname)
-    echodo $bin domain.pddl problem.pddl -Q $OPTIONS
+    $bin domain.pddl problem.pddl -Q $OPTIONS
 }
 
 finalize (){

@@ -9,7 +9,7 @@
 
 plan(){
     echo $(whoami)@$(hostname)
-    time echodo $fdscript --search --validate --alias lama-first \
+    time $fdscript --search --validate --alias lama-first \
         --plan-file $probdir/$probname.plan $log_options problem.pddl
 }
 

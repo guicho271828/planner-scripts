@@ -11,7 +11,7 @@ bin=$SCRDIR/ff-super
 
 plan(){
     echo $(whoami)@$(hostname)
-    echodo $bin -i 3 $OPTIONS \
+    $bin -i 3 $OPTIONS \
         -f problem.pddl -o domain.pddl
 }
 

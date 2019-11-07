@@ -9,7 +9,7 @@
 
 plan(){
     echo $(whoami)@$(hostname)
-    time echodo $fdscript --build release64 --search --validate \
+    time $fdscript --build release64 --search --validate \
          --plan-file $probdir/$probname.plan --log-level info <(gunzip < problem.pddl) $OPTIONS
 }
 

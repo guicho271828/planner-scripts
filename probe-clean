@@ -28,7 +28,7 @@ plan(){
 
     # ./probe -d $1 -i $2 -o $3 # -a
     pwd
-    echodo $bin -i problem.pddl -d domain.pddl -o plan -v $OPTIONS
+    $bin -i problem.pddl -d domain.pddl -o plan -v $OPTIONS
     # plan is actually the template name
     cat *.stats
 }

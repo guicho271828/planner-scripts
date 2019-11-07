@@ -14,9 +14,9 @@ plan(){
     echo $(whoami)@$(hostname)
     if grep "metric" problem.pddl
     then
-        echodo $bin $OPTIONS -f problem.pddl -o domain.pddl
+        $bin $OPTIONS -f problem.pddl -o domain.pddl
     else
-        echodo $bin -s 0 $OPTIONS -f problem.pddl -o domain.pddl
+        $bin -s 0 $OPTIONS -f problem.pddl -o domain.pddl
     fi
 }
 

@@ -28,16 +28,16 @@ plan(){
                 echo "reusing the translation output : $tc/$md5"
                 cp $tc/$md5 output.sas
             else
-                echodo $fdscript --translate --log-level info domain.pddl problem.pddl \
+                $fdscript --translate --log-level info domain.pddl problem.pddl \
                     && cp output.sas $tc/$md5
             fi
             
-            echodo $fdscript --preprocess --log-level info output.sas \
+            $fdscript --preprocess --log-level info output.sas \
                 && cp output $pc/$md5
         fi
     ) 9>$pc/$md5.lock
     
-    echodo $fdscript --search --validate --search-time-limit 300 \
+    $fdscript --search --validate --search-time-limit 300 \
         --plan-file $probdir/$probname.plan --log-level info output \
         $OPTIONS
 }
