@@ -65,7 +65,7 @@ _finalize (){
     $SCRDIR/killall.sh $pid -9
     negatively-proven && touch $neg
     finalize                    # call planner-specific finalizer
-    echo $'\x1b[34;1m'--------------------------------------------------------
+    echo $'\x1b[32;1m'--------------------------------------------------------
     echo Result:
     report-results 2> /dev/null
     echo --------------------------------------------------------$'\x1b[0m'
