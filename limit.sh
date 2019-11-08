@@ -2,13 +2,7 @@
 
 echo "Running limit.sh($$): $@"
 
-# ********  Exported variables: **********
-# 
-# DIR -- original PWD when this file is invoked
-# TMP -- temprary working directory for the planner.
-
 SCRDIR=$(dirname $(readlink -ef $0))
-export DIR=$PWD
 
 mem=
 time=
