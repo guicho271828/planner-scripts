@@ -23,12 +23,12 @@ plan(){
         if [ -f $pc/$md5 ]
         then
             echo "reusing the preprocess output : $pc/$md5"
-            cp $pc/$md5 output
+            ln -s $pc/$md5 output
         else
             if [ -f $tc/$md5 ]
             then
                 echo "reusing the translation output : $tc/$md5"
-                cp $tc/$md5 output.sas
+                ln -s $tc/$md5 output.sas
             else
                 $fdscript --translate --log-level info domain.pddl problem.pddl \
                     && cp output.sas $tc/$md5
