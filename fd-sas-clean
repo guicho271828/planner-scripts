@@ -11,7 +11,7 @@ SCRDIR=$(dirname $(readlink -ef $0))
 
 plan(){
     echo $(whoami)@$(hostname)
-    time $fdscript --build release64 --search --validate \
+    time $fdscript --search --validate \
          --plan-file $probdir/$probname.plan --log-level info problem.pddl $OPTIONS
 }
 
