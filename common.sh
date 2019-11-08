@@ -14,7 +14,7 @@ while getopts "do:-" opt; do {
             o)  # specifies the search option
                 OPTIONS=${OPTARG:-$OPTIONS} ;;
             -)  break ;;
-            \?) echo "limit.sh($$): unsupported option $opt" ;
+            \?) echo "limit.sh($$): unsupported option $opt" >&2 ;
                 exit 1;;
         esac
     }

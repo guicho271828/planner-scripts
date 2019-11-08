@@ -18,6 +18,10 @@ test-non-ff (){
     section $1
     success ../limit.sh -- $1 -d -- p01.pddl domain.pddl
     success ../limit.sh -- $1 -d -- p02.pddl domain.pddl
+    if (echo $1 | grep -q fd )
+    then
+        success ../limit.sh -- "$1 -d -o '--search astar(blind())' -- p01.pddl domain.pddl"
+    fi
 
     fail ../limit.sh -t 1 -- $1 -d -- p22.pddl domain.pddl
     fail test -e p22.negative

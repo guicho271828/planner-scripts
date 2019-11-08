@@ -43,7 +43,7 @@ echo "limit.sh($$): note: time precision is 0.5 sec"
 TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 0.1 -c \
     $([ -z $mem  ] || echo "--memlimit-rss $mem") \
     $([ -z $time ] || echo "-t            $time") \
-    $@
+    bash -c "$*"
 
 exitstatus=$?
 case $exitstatus in
