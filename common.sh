@@ -36,33 +36,42 @@ fi
 #### argument processing
 
 problem=$1
-probname=$(basename $problem .pddl)
-probdir=$(readlink -ef $(dirname $problem))
-problem=$probdir/$probname.pddl
+domain=$2
 
-if [[ $2 != "" ]]
+probname=$(basename $problem .pddl)
+probdir=$(dirname $problem)
+
+if [[ -z $domain && -e $probdir/domain.pddl ]]
 then
-    domain=$2
-    domain=$(readlink -ef $(dirname $domain))/$(basename $domain)
-else
     domain=$probdir/domain.pddl
 fi
-if [[ ! -e $domain ]]
+
+if [[ -z $domain && -e $probdir/$probname-domain.pddl ]]
 then
     domain=$probdir/$probname-domain.pddl
 fi
-if [[ ! -e $domain ]]
+
+if [[ -z $domain ]]
 then
     echo "no domain file $domain!" >&2
     exit 1
 fi
 
+# make the directory absolute
+
+absolute (){
+    echo $(cd $(dirname $1); pwd)/$(basename $1)
+}
+ 
+problem=$(absolute $problem)
+domain=$(absolute $domain)
+
 ################################################################
 #### output files
 
-log=$probdir/$probname.log
-err=$probdir/$probname.err
-neg=$probdir/$probname.negative
+log=$(absolute $probdir/$probname.log)
+err=$(absolute $probdir/$probname.err)
+neg=$(absolute $probdir/$probname.negative)
 
 ################################################################
 #### temporary directory
@@ -107,4 +116,4 @@ cd $tmp
 
 ln -s $problem problem.pddl
 ln -s $domain domain.pddl
-plan >(tee $log) 2>(tee $err >&2)
+plan > $log 2>$err
