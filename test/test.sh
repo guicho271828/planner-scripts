@@ -5,29 +5,19 @@
 # quick tests
 ../clean.sh
 
-# success ../limit.sh -d -- yahsp3-clean p01.pddl domain.pddl
-# 
-# exit
-
 test-non-ff (){
     # this should finish normally (because it is easy)
     ../clean.sh
 
     section $1
-    success ../limit.sh -d -- $1 p01.pddl domain.pddl
-    success ../limit.sh -d -- $1 p02.pddl domain.pddl
+    success ../limit.sh -- $1 -d p01.pddl domain.pddl
+    success ../limit.sh -- $1 -d p02.pddl domain.pddl
 
-    fail ../limit.sh -t 1 -d -- $1 p22.pddl domain.pddl
+    fail ../limit.sh -t 1 -- $1 -d p22.pddl domain.pddl
     fail test -e p22.negative
 
-    # # increased verbosity
-    # success ../limit.sh -t 1 -- $1 p01.pddl domain.pddl
-    # 
-    # # debugging: do not remove temporary directory
-    # success ../limit.sh -t 1 -d -- $1  p03.pddl domain.pddl
-
     # what happens when there are no solution?
-    fail ../limit.sh -d -t 1 -- $1 unsolvable.pddl domain.pddl
+    fail ../limit.sh -t 1 -- $1 -d unsolvable.pddl domain.pddl
 
     success test -e unsolvable.negative
 }

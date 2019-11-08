@@ -10,9 +10,6 @@
 ../limit.sh -t 1 -- mff-clean p18.pddl domain.pddl
 
 
-# debugging: do not remove temporary directory
-../limit.sh -t 1 -d -- mff-clean  p03.pddl domain.pddl
-
 # what happens when there are no solution?
 ../limit.sh -t 1 -- mff-clean unsolvable.pddl domain.pddl
 

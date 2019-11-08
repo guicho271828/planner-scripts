@@ -5,20 +5,16 @@ echo "Running limit.sh($$): $@"
 # ********  Exported variables: **********
 # 
 # DIR -- original PWD when this file is invoked
-# DEBUG -- debug flag, disable removing tmp dir when enabled
 # TMP -- temprary working directory for the planner.
 
 SCRDIR=$(dirname $(readlink -ef $0))
 export DIR=$PWD
-export DEBUG=false
 
 mem=
 time=
 
-while getopts ":-dt:m:" opt; do {
+while getopts ":-t:m:" opt; do {
         case ${opt} in
-            d)  # do not remove the temporary directory for debugging
-                DEBUG=true ;;
             t)  # hard limit of the execution time, in sec.
                 time=${OPTARG} ;
                 [[ $time == -1 ]] && time= ;

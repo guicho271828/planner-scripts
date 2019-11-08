@@ -2,10 +2,14 @@
 ################################################################
 #### option processing
 
+DEBUG=false
 OPTIONS=
 
-while getopts ":o:" opt; do {
+while getopts ":do:" opt; do {
         case ${opt} in
+            d)  # do not remove the temporary directory for debugging
+                # also, enable -x
+                DEBUG=true ;;
             o)  # specifies the search option
                 OPTIONS=${OPTARG:-$OPTIONS} ;;
             -)  break ;;
