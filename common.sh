@@ -9,6 +9,7 @@ while getopts ":do:" opt; do {
         case ${opt} in
             d)  # do not remove the temporary directory for debugging
                 # also, enable -x
+                set -x ;
                 DEBUG=true ;;
             o)  # specifies the search option
                 OPTIONS=${OPTARG:-$OPTIONS} ;;
