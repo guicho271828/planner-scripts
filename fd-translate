@@ -1,5 +1,7 @@
 #!/bin/bash
 #-*- mode:sh -*-
+SCRDIR=$(dirname $(readlink -ef $0))
+. $SCRDIR/fdutil.sh
 
 ################################################################
 #### default options
