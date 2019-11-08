@@ -4,14 +4,32 @@
 ################################################################
 #### option processing
 
+OPTIONS=
+
+while getopts ":o:" opt; do {
+        case ${opt} in
+            o)  # specifies the search option
+                OPTIONS=${OPTARG:-$OPTIONS} ;;
+            -)  break ;;
+            \?) OPT_ERROR=1; break;;
+            * ) echo "limit.sh($$): unsupported option $opt" ;;
+        esac
+    }
+done
+
 shift $(($OPTIND - 1))
 
 if [[ ( $1 == "" ) || $OPT_ERROR ]]
 then
     cat >&2 <<EOF
-Usage: ./$0
-       [-o OPTIONS]        -- search options
-       problemfile [domainfile=domain.pddl]
+Usage: ./$0 [-o OPTIONS] problemfile [domainfile]
+
+domainfile, if missing, is inferred from problemfile in the following manner:
+
+* domain.pddl if it exists in the same directory as the problemfile
+* [NAME]-domain.pddl where [NAME] is the basename of problemfile excluding the
+  filename extension, if it exists in the same directory as the problemfile.
+
 EOF
     exit 2
 fi

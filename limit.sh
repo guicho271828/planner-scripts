@@ -10,22 +10,16 @@ echo "Running limit.sh($$): $@"
 
 SCRDIR=$(dirname $(readlink -ef $0))
 . $SCRDIR/util.sh
-export OPTIONS=
 export DIR=$PWD
 export DEBUG=false
 
 mem=
 time=
-export ITERATED=false
 
-while getopts ":-ido:t:m:" opt; do {
+while getopts ":-dt:m:" opt; do {
         case ${opt} in
-            o)  # specifies the search option
-                OPTIONS=${OPTARG:-$OPTIONS} ;;
             d)  # do not remove the temporary directory for debugging
                 DEBUG=true ;;
-            i)  # use iterated run if possible
-                ITERATED=true ;;
             t)  # hard limit of the execution time, in sec.
                 time=${OPTARG} ;
                 [[ $time == -1 ]] && time= ;
