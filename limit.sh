@@ -39,7 +39,7 @@ EOF
 fi
 
 echo "limit.sh($$): mem: ${mem:-unlimited} kB, time: ${time:-unlimited} sec"
-echo "limit.sh($$): running at $TMP"
+echo "limit.sh($$): pwd: $(pwd)"
 echo "limit.sh($$): command to execute: $@"
 echo "limit.sh($$): note: time precision is 0.5 sec"
 
