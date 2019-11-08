@@ -40,8 +40,7 @@ fi
 
 echo "limit.sh($$): mem: ${mem:-unlimited} kB, time: ${time:-unlimited} sec"
 echo "limit.sh($$): running at $TMP"
-echo "limit.sh($$): command to execute: $command"
-echo "limit.sh($$): current planner options : $OPTIONS"
+echo "limit.sh($$): command to execute: $@"
 echo "limit.sh($$): note: time precision is 0.5 sec"
 
 TIMEOUT_IDSTR="LIMIT_SH " $SCRDIR/timeout/timeout -x 0.1 -c \

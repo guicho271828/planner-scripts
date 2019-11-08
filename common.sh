@@ -89,10 +89,11 @@ tmp=$(mktemp -d --tmpdir=/tmp/$(whoami))
 # but not plan files: because they are planner specific
 
 _interrupt (){
-    echo "common.sh($$): received $1, exiting..."
+    echo "common.sh($$): interrupted by $1..."
     exit 1
 }
 _finalize (){
+    echo "common.sh($$): exiting..."
     negatively-proven && touch $neg
     finalize                    # call planner-specific finalizer
     echo $'\x1b[32;1m'--------------------------------------------------------
