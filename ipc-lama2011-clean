@@ -42,7 +42,6 @@ plan(){
     planpid=$!
     
     grep -q "$finished_flag\|soln\(\.[0-9]\+\)\?\>" <(inotifywait -e close_write -m .)
-    mykill $planpid
 }
 
 # Copy the plan files

@@ -1,6 +1,4 @@
 
-. $SCRDIR/util.sh
-
 ################################################################
 #### option processing
 
@@ -81,8 +79,6 @@ _interrupt (){
     exit 1
 }
 _finalize (){
-    echo "common.sh($$): forcibly killing all subprocesses"
-    $SCRDIR/killall.sh $pid -9
     negatively-proven && touch $neg
     finalize                    # call planner-specific finalizer
     echo $'\x1b[32;1m'--------------------------------------------------------

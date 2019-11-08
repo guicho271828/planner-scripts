@@ -9,7 +9,6 @@ echo "Running limit.sh($$): $@"
 # TMP -- temprary working directory for the planner.
 
 SCRDIR=$(dirname $(readlink -ef $0))
-. $SCRDIR/util.sh
 export DIR=$PWD
 export DEBUG=false
 
