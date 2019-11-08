@@ -7,7 +7,7 @@ SCRDIR=$(dirname $(readlink -ef $0))
 mem=
 time=
 
-while getopts ":-t:m:" opt; do {
+while getopts "t:m:-" opt; do {
         case ${opt} in
             t)  # hard limit of the execution time, in sec.
                 time=${OPTARG} ;
@@ -18,19 +18,16 @@ while getopts ":-t:m:" opt; do {
                 [[ $mem == -1 ]] && mem= ;
                 [[ $mem == 'unlimited' ]] && mem= ;;
             -)  break ;;
-            \?) OPT_ERROR=1; break;;
-            * ) echo "limit.sh($$): unsupported option $opt" ;;
+            \?) echo "limit.sh($$): unsupported option $opt" ;
+                exit 1;;
         esac
     }
 done
 
 shift $(( $OPTIND - 1 ))
-if [[ ( $1 == "" ) || $OPT_ERROR ]] ; then {
+if [[ ( $1 == "" ) ]] ; then {
         cat >&2 <<EOF
-usage: ./limit.sh
-       [-d]
-       [-t time (sec)]
-       [-m memory (kB)] [--] command args...
+usage: ./limit.sh [-t time (sec)] [-m memory (kB)] [--] command args...
  examples:
   limit.sh -t 100 -- macroff-clean problem.pddl domain.pddl
 EOF

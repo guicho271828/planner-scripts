@@ -5,7 +5,7 @@
 DEBUG=false
 OPTIONS=
 
-while getopts ":do:" opt; do {
+while getopts "do:-" opt; do {
         case ${opt} in
             d)  # do not remove the temporary directory for debugging
                 # also, enable -x
@@ -14,18 +14,18 @@ while getopts ":do:" opt; do {
             o)  # specifies the search option
                 OPTIONS=${OPTARG:-$OPTIONS} ;;
             -)  break ;;
-            \?) OPT_ERROR=1; break;;
-            * ) echo "limit.sh($$): unsupported option $opt" ;;
+            \?) echo "limit.sh($$): unsupported option $opt" ;
+                exit 1;;
         esac
     }
 done
 
 shift $(($OPTIND - 1))
 
-if [[ ( $1 == "" ) || $OPT_ERROR ]]
+if [[ ( $1 == "" ) ]]
 then
     cat >&2 <<EOF
-Usage: ./$0 [-o OPTIONS] problemfile [domainfile]
+Usage: ./$0 [-d] [-o OPTIONS] -- problemfile [domainfile]
 
 domainfile, if missing, is inferred from problemfile in the following manner:
 

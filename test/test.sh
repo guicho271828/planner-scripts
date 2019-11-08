@@ -2,7 +2,13 @@
 
 . ../test-common.sh
 
+
 # quick tests
+success ../limit.sh -- echo hi!
+success ../limit.sh -t 1 -m 1 -- echo hi!
+fail    ../limit.sh -e -- echo hi!
+fail    ../limit.sh -t -- echo hi!
+
 ../clean.sh
 
 test-non-ff (){
@@ -10,14 +16,14 @@ test-non-ff (){
     ../clean.sh
 
     section $1
-    success ../limit.sh -- $1 -d p01.pddl domain.pddl
-    success ../limit.sh -- $1 -d p02.pddl domain.pddl
+    success ../limit.sh -- $1 -d -- p01.pddl domain.pddl
+    success ../limit.sh -- $1 -d -- p02.pddl domain.pddl
 
-    fail ../limit.sh -t 1 -- $1 -d p22.pddl domain.pddl
+    fail ../limit.sh -t 1 -- $1 -d -- p22.pddl domain.pddl
     fail test -e p22.negative
 
     # what happens when there are no solution?
-    fail ../limit.sh -t 1 -- $1 -d unsolvable.pddl domain.pddl
+    fail ../limit.sh -t 1 -- $1 -d -- unsolvable.pddl domain.pddl
 
     success test -e unsolvable.negative
 }
