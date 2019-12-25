@@ -70,6 +70,7 @@ absolute (){
  
 problem=$(absolute $problem)
 domain=$(absolute $domain)
+probdir=$(dirname $problem)
 
 ################################################################
 #### output files
