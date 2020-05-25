@@ -13,7 +13,7 @@ find-fd-upward (){
     echo "finding FD installation from $1 ..."
     if [[ -d $1/downward ]]
     then
-        fdscript="$(readlink -ef $(find-fd-py $1/downward)) --build release64"
+        fdscript="$(readlink -ef $(find-fd-py $1/downward)) --build release"
     else
         if [[ $1 == / ]]
         then
