@@ -23,7 +23,7 @@ test-non-ff (){
         success ../limit.sh -- "$1 -d -o '--search astar(blind())' -- p01.pddl domain.pddl"
     fi
 
-    fail ../limit.sh -t 1 -- $1 -d -- p22.pddl domain.pddl
+    fail ../limit.sh -t 1 -- $1 -d -- floortile-p20.pddl floortile-domain.pddl
     fail test -e p22.negative
 
     # what happens when there are no solution?
