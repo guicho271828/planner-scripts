@@ -3,3 +3,4 @@
 *.sas*
 *.time
 *.plan.*
+*.err
