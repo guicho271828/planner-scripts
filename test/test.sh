@@ -41,7 +41,8 @@ dir=$(dirname $0)
 cd $dir
 
 #  mff doesnt work at all
-for planner in fd-cached fd ipc-yahsp-mco ipc-jasper ipc-mercury ff lpg marvin1 marvin2 mpc mp m probe yahsp3
+for planner in fd-cached fd ipc-yahsp-mco ipc-jasper ipc-mercury ff lpg marvin1 marvin2 mpc mp m probe yahsp3 \
+                         bfws siw bfsf siwbfsf
 do
     test-non-ff ../$planner-clean
 done
