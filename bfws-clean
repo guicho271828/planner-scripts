@@ -12,13 +12,13 @@ bin=$SCRDIR/bfws
 
 plan(){
     echo $(whoami)@$(hostname)
-    $bin $OPTIONS --problem problem.pddl --domain domain.pddl --output plan
+    $bin $OPTIONS --problem problem.pddl --domain domain.pddl --output $probdir/$probname.plan
 }
 
 finalize (){
     ls
     cat $log
-    cat plan
+    cat $probdir/$probname.plan
     cat execution.details
 }
 
