@@ -103,7 +103,7 @@
                                       ,@(when iterated `(-i))
                                       ,@(when verbose `(-v))
                                       ,@(when (and options (> (length options) 0)) `(-o ,options))
-                                      -- ,name ,problem ,domain))
+                                      -- ,(merge-pathnames name *system*) ,problem ,domain))
                             :ignore-error-status t
                             :output t
                             ;; see limit.sh
