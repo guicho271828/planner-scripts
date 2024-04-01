@@ -82,7 +82,7 @@
                               (time-limit *soft-time-limit*)
                               (hard-time-limit *hard-time-limit*)
                             &aux (*verbose* verbose))
-  (declare (ignore time-limit))
+  (declare (ignore time-limit verbose iterated))
   (unless (probe-file *limitsh*)
     (error "Failed to find limit.sh! Did you moved the directory? ~a "
            *limitsh*))
@@ -100,10 +100,10 @@
                                     `(,*limitsh*
                                       -m ,(ulimit memory)
                                       -t ,(ulimit hard-time-limit)
-                                      ,@(when iterated `(-i))
-                                      ,@(when verbose `(-v))
+                                      --
+                                      ,(merge-pathnames name *system*)
                                       ,@(when (and options (> (length options) 0)) `(-o ,options))
-                                      -- ,(merge-pathnames name *system*) ,problem ,domain))
+                                      ,problem ,domain))
                             :ignore-error-status t
                             :output t
                             ;; see limit.sh
