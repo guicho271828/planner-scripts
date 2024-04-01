@@ -102,7 +102,7 @@
                                       -t ,(ulimit hard-time-limit)
                                       ,@(when iterated `(-i))
                                       ,@(when verbose `(-v))
-                                      ,@(when options `(-o ,options))
+                                      ,@(when (and options (> (length options) 0)) `(-o ,options))
                                       -- ,name ,problem ,domain))
                             :ignore-error-status t
                             :output t
